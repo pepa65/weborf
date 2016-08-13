@@ -115,6 +115,9 @@ typedef struct {
     char *port;                 //port with default value
     char *user;                 //Username for authentication
     char *pass;                 //Password for authentication
+    char *name;                 //Name of the application
+    char *sig;                  //Signature of the application
+    char css[CSSLEN];           //The CSS style definitions for the webpage
 
     char *indexes[MAXINDEXCOUNT];//List of pointers to index files
     int indexes_l;              //Count of the list

@@ -43,6 +43,9 @@ weborf_configuration_t weborf_conf = {
     .uid = ROOTUID,
     .user = NULL,
     .pass = NULL,
+    .name = NAME,
+    .sig = SIGNATURE,
+    .css = CSS,
 
 #ifdef SEND_MIMETYPES
     .send_content_type = false,
@@ -192,16 +195,20 @@ void configuration_load(int argc, char *argv[]) {
         {"tar", no_argument,0,'t'},
         {"user", required_argument, 0, 'U'},
         {"pass", required_argument, 0, 'P'},
+        {"name", required_argument, 0, 'n'},
+        {"sig", required_argument, 0, 's'},
+        {"css", required_argument, 0, 'S'},
         {0, 0, 0, 0}
     };
 
 
+    int csslen;
     while (1) { //Block to read command line
 
         option_index = 0;
 
         //Reading one option and telling what options are allowed and what needs an argument
-        c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:", long_options,
+        c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:n:s:S:", long_options,
                         &option_index);
 
         //If there are no options it continues
@@ -270,6 +277,20 @@ void configuration_load(int argc, char *argv[]) {
         case 'P':
             weborf_conf.pass = optarg;
             weborf_conf.authsock = "embedded";
+            break;
+        case 'n':
+            weborf_conf.name = optarg;
+            break;
+        case 's':
+            weborf_conf.sig = optarg;
+            break;
+        case 'S':
+            csslen=strlen(weborf_conf.css);
+            if (csslen+strlen(optarg) >= CSSLEN) {
+                fprintf(stderr,"The supplied CSS code is too long, max %d\n",CSSLEN-csslen);
+                exit(19);
+            }
+            strcpy(weborf_conf.css+strlen(weborf_conf.css), optarg);
             break;
         default:
             exit(19);

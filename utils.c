@@ -40,6 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "utils.h"
 #include "embedded_auth.h"
 
+extern weborf_configuration_t weborf_conf;
+
 /**
 This function reads the directory dir, putting inside the html string an html
 page with links to all the files within the directory.
@@ -67,7 +69,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     }
 
     //Specific header table)
-    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</h4><div class=\"list\"><table><tr><td></td><td><i>Name</i></td><td><i>Size</i></td><td><i>Last Modified</i></td></tr>",HTMLHEAD,connection_prop->strfile);
+    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td></td><td>Name</td><td>Size</td><td>Last Modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.css,connection_prop->strfile);
     maxsize-=printf_s;
 
     //Cycles trough dir's elements
@@ -78,12 +80,12 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
     //Print link to parent directory, if there is any
     if (parent) {
-        printf_s=snprintf(html+pagesize,maxsize,"<tr style=\"background-color: #D0D0D0;\"><td><a href=\"..\"><b>up</b></a></td><td><a href=\"..\"><b>../</b></a></td><td></td><td></td></tr>");
+			 printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">../</a></td><td></td><td></td></tr>");
         maxsize-=printf_s;
         pagesize+=printf_s;
-        color = "white";
+        color = "light";
     }
-    else color = "#E0E0E0";
+    else color = "dark";
 
     for (i=0; i<counter; i++) {
         //Skipping hidden files
@@ -121,20 +123,20 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
             }
 
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr style=\"background-color: %s;\"><td>f</td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
+                              "<tr class=\"%s\"><td>f</td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
                               color, namelist[i]->d_name, namelist[i]->d_name, (long long int)size, measure,last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
-            color = (color == "white" ? "#E0E0E0" : "white");
+            color = (color == "dark" ? "light" : "dark");
 
         } else if (S_ISDIR(f_mode)) { //Directory entry
             //Table row for the dir
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr style=\"background-color: %s;\"><td><b>d</b></td><td><a href=\"%s\"><b>%s/</b></a></td><td></td><td>%s</td></tr>\n",
+                              "<tr class=\"%s\"><td class=\"b\">d</td><td class=\"b\"><a href=\"%s\">%s/</a></td><td></td><td>%s</td></tr>\n",
                               color, namelist[i]->d_name, namelist[i]->d_name,last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
-            color = (color == "white" ? "#E0E0E0" : "white");
+            color = (color == "dark" ? "light" : "dark");
         }
 
         free(namelist[i]);
@@ -142,7 +144,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
     free(namelist);
 
-    printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
+    printf_s=snprintf(html+pagesize,maxsize,"</table></div><div class=\"foot\">%s</div></body></html>",weborf_conf.sig);
     pagesize+=printf_s;
 
     return pagesize;
@@ -202,8 +204,8 @@ Prints command line help
  */
 void help() {
 
-    printf("\tUsage: weborf [OPTIONS]\n"
-           "\tStart the weborf webserver\n\n"
+    printf("\tStart the weborf webserver\n"
+           "\tUsage: weborf [OPTIONS]\n\n"
 #ifdef IPV6
            "\tCompiled for IPv6\n"
 #else
@@ -218,9 +220,10 @@ void help() {
            "\tHas MIME support\n"
 #endif
 
-           "Default port is        %s\n"
-           "Default base directory %s\n"
-           "Signature used         %s\n\n", PORT,BASEDIR,SIGNATURE);
+           "Default port: %s\n"
+           "Default base directory: %s\n"
+           "Signature used: %s\n\n"
+           "CSS stylesheet used: %s\n\n",PORT,BASEDIR,SIGNATURE,CSS);
 
     printf("  -a, --auth    followed by absolute path of authentication program\n"
            "  -b, --basedir followed by the path of basedir\n"
@@ -232,9 +235,12 @@ void help() {
            "  -i, --ip      followed by IP address to listen on (dotted format)\n"
            "  -k, --caps    lists the capabilities of the binary\n"
            "  -m, --mime    sends content type header to clients\n"
+           "  -n, --name    the name of the application as in the webpage title\n"
            "  -P, --pass    followed by the password for access authentication\n"
            "                  Both username and password must be set for it to work\n"
            "  -p, --port    followed by the port number to listen on\n"
+           "  -S, --css     additional CSS for the stylesheet of the webpage\n"
+           "  -s, --sig     the signature as at the bottom of the webpage\n"
            "  -T  --inetd   must be specified when using weborf with inetd or xinetd\n"
            "  -t  --tar     will send the directories as .tar.gz files\n"
            "  -U, --user    followed by the username for access authentication\n"

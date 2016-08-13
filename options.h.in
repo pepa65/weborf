@@ -25,9 +25,9 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 #ifndef WEBORF_OPTIONS_H
 #define WEBORF_OPTIONS_H
 
-#define NAME "OMF-TH Backups"
+#define NAME PACKAGE
 //#define VERSION PACKAGE_VERSION
-#define SIGNATURE "OMF Thailand FHQ backup directory server"
+#define SIGNATURE NAME "/" VERSION " (GNU/Linux)"
 
 //----------System
 #define ROOTUID 0               //Uid for superuser
@@ -38,7 +38,7 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 
 #ifdef _POSIX_IPV6              //Enables ipv6 if supported
 //Delete the following line to use IPv4 instead.
-//#define IPV6
+#define IPV6
 #endif
 
 //-----------Threads
@@ -67,16 +67,17 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 #define URI_LEN 256
 #define PATH_LEN 1024
 #define MIMETYPELEN 15          //Size of mimetype string
+#define CSSLEN 3000             //Size of the extended CSS stylesheet
 
 //Number of index pages allowed to search
 #define MAXINDEXCOUNT 10
 
 //-------------LIMITS
-#define POST_MAX_SIZE 2000000   //Maximum allowed size for POST data
+#define POST_MAX_SIZE 4000000   //Maximum allowed size for POST data
 
 //-------------HTML
-#define HTMLHEAD "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>" NAME "</title><style type=\"text/css\">a, a:active {text-decoration: none; color: blue;}a:visited {color: #48468F;}a:hover, a:focus {text-decoration: underline; color: red;}body {background-color: #F5F5F5;}h2 {margin-bottom: 12px;}table {margin-left: 12px;}th, td { font: 80% sans-serif; text-align: left;}th { font-weight: bold; padding-right: 14px; padding-bottom: 3px;}td {padding-right: 14px;}td.s, th.s {text-align: right;}div.list { background-color: white; border-top: 1px solid #646464; border-bottom: 1px solid #646464; padding-top: 10px; padding-bottom: 14px;}div.foot { font: 80% sans-serif; color: #787878; padding-top: 4px;}</style></head><body><h4>"
-#define HTMLFOOT "</div><div class=\"foot\">" SIGNATURE "</div><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></body></html>\n"
+#define HTMLHEAD "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>"
+#define CSS "body{font-family:Arial,sans-serif;} a,a:active{text-decoration:none; color:#116;} a:visited{color:#616;} a:hover,a:focus{text-decoration:underline; color:#611;} body{background-color:#eee} h2{margin-bottom:12px;} table{margin-left:12px;} th,td{font:80%; text-align:left;} th{font-weight:bold; padding-right:14px; padding-bottom:3px;} td{padding-right:14px;} td.s,th.s{text-align:right;} div.list{background-color:#fff; border-top:1px solid #666; border-bottom:1px solid #666; padding-top:8px; padding-bottom:12px;} div.foot{font:80%; color:#666; padding-top:4px; padding-bottom:600px} .i{font-style:italic;} .b{font-weight:bold;} .darker{background-color:#ccc;} .dark{background-color:#eee;} .light{background-color:#fff;}"
 
 //-------------SCRIPTS
 #define SCRPT_TIMEOUT 30        //Timeout for the scripts, in seconds
@@ -84,8 +85,10 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 
 //#define CGI_PHP "@cgibindir@/php5"
 //#define CGI_PY "@cgibindir@/weborf_py_wrapper"
-#define CGI_PHP "/usr/lib/cgi-bin/php5"
-#define CGI_PY "/usr/lib/cgi-bin/weborf_py_wrapper"
+//#define CGI_PHP "/usr/lib/cgi-bin/php5"
+//#define CGI_PY "/usr/lib/cgi-bin/weborf_py_wrapper"
+#define CGI_PHP "/usr/bin/php-cgi"
+#define CGI_PY "/usr/local/bin/weborf_py_wrapper"
 
 //-------------COMPRESSING PAGES
 //#define __COMPRESSION         //enables support for compressing pages, comment to disable
