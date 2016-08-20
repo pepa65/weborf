@@ -552,9 +552,9 @@ escape:
  * the appropriate index file or show the list of the files.
  * */
 static int get_or_post(connection_t *connection_prop, string_t post_param) {
-
+    //If any url parameter, then tar & gzip
+    if (connection_prop->get_params) return tar_send_dir(connection_prop);
     if (S_ISDIR(connection_prop->strfile_stat.st_mode)) {//Requested a directory
-
         if (weborf_conf.tar_directory) {
             return tar_send_dir(connection_prop);
         }
@@ -1192,13 +1192,9 @@ static int tar_send_dir(connection_t* connection_prop) {
 
     if (headers==NULL) return ERR_NOMEM;
 
-
-    //Last char is always '/', i null it so i can use default name
-    connection_prop->strfile[--connection_prop->strfile_len]=0;
-
     snprintf(headers,HEADBUF ,
              "Content-Type: application/x-gzip\r\n"
-             "Content-Disposition: attachment; filename=\"%s.tar.gz\"\r\n",
+             "Content-Disposition: attachment; filename=\"%s.tgz\"\r\n",
              strrchr(connection_prop->strfile,'/')+1
             );
 

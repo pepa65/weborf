@@ -121,19 +121,20 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
                 size = size / 1024;
                 measure=" GiB";
             }
-
+            char *name = namelist[i]->d_name;
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr class=\"%s\"><td>f</td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
-                              color, namelist[i]->d_name, namelist[i]->d_name, (long long int)size, measure,last_modified);
+                              "<tr class=\"%s\"><td><a href=\"%s?\">file</a></td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
+                              color, name, name, name, (long long int)size, measure, last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
             color = (color == "dark" ? "light" : "dark");
 
         } else if (S_ISDIR(f_mode)) { //Directory entry
             //Table row for the dir
+            char *name = namelist[i]->d_name;
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr class=\"%s\"><td class=\"b\">d</td><td class=\"b\"><a href=\"%s\">%s/</a></td><td></td><td>%s</td></tr>\n",
-                              color, namelist[i]->d_name, namelist[i]->d_name,last_modified);
+                              "<tr class=\"%s\"><td class=\"b\"><a href=\"%s?\">dir</a></td><td class=\"b\"><a href=\"%s\">%s/</a></td><td></td><td>%s</td></tr>\n",
+                              color, name, name, name, last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
             color = (color == "dark" ? "light" : "dark");
