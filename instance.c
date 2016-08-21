@@ -941,7 +941,7 @@ int request_auth(connection_t *connection_prop) {
     char * page=head+HEADBUF;
 
     //Prepares html page
-    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Authorization required</h1><p>%s</p></div><div class=\"foot\">%s</div><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.css,weborf_conf.name,descr,weborf_conf.sig);
+    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Authorization required</h1><p>%s</p></div><div class=\"foot\">%s</div></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,descr,weborf_conf.sig);
 
     //Prepares http header
     int head_len = snprintf(head,HEADBUF,"HTTP/1.1 401 Authorization Required\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nWWW-Authenticate: Basic realm=\"%s\"\r\n\r\n",page_len,descr);
@@ -984,7 +984,7 @@ int send_err(connection_t *connection_prop,int err,char* descr) {
     char * page=head+HEADBUF;
 
     //Prepares the page
-    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s%s%s</h4><div class=\"list\"><h1>Error %d</h1>%s </div><div class=\"foot\">%s</div><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.css,weborf_conf.name,err,descr,weborf_conf.sig);
+    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Error %d</h1>%s </div><div class=\"foot\">%s</div></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,err,descr,weborf_conf.sig);
 
     //Prepares the header
     int head_len = snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n",err,descr ,(int)page_len);

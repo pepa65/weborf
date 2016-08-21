@@ -69,7 +69,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     }
 
     //Specific header table)
-    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td></td><td>Name</td><td>Size</td><td>Last Modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.css,connection_prop->strfile);
+    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td></td><td>Name</td><td>Size</td><td>Last Modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,connection_prop->strfile);
     maxsize-=printf_s;
 
     //Cycles trough dir's elements
@@ -80,7 +80,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
     //Print link to parent directory, if there is any
     if (parent) {
-			 printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">../</a></td><td></td><td></td></tr>");
+			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">../</a></td><td></td><td></td></tr>");
         maxsize-=printf_s;
         pagesize+=printf_s;
         color = "light";
@@ -231,10 +231,13 @@ void help() {
            "  -C, --cache   sets the directory to use for cache files\n"
            "  -c, --cgi     list of cgi files+binaries to execute, comma-separated\n"
            "  -d, --daemon  keep running, as a daemon\n"
+           "  -f, --favicon followed by the URL of a favicon for the webpage\n"
            "  -h, --help    display this help and exit\n"
            "  -I, --index   list of index files, comma-separated\n"
            "  -i, --ip      followed by IP address to listen on (dotted format)\n"
            "  -k, --caps    lists the capabilities of the binary\n"
+           "  -l, --login   filename with login credentials: first line is username,\n"
+           "                  second line is password; superseded by -U and -P\n"
            "  -m, --mime    sends content type header to clients\n"
            "  -n, --name    the name of the application as in the webpage title\n"
            "  -P, --pass    followed by the password for access authentication\n"

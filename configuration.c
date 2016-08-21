@@ -45,6 +45,7 @@ weborf_configuration_t weborf_conf = {
     .pass = NULL,
     .name = NAME,
     .sig = SIGNATURE,
+    .favlink = NULL,
     .css = CSS,
 
 #ifdef SEND_MIMETYPES
@@ -195,25 +196,54 @@ void configuration_load(int argc, char *argv[]) {
         {"tar", no_argument,0,'t'},
         {"user", required_argument, 0, 'U'},
         {"pass", required_argument, 0, 'P'},
+        {"login", required_argument, 0, 'l'},
         {"name", required_argument, 0, 'n'},
         {"sig", required_argument, 0, 's'},
+        {"favicon", required_argument, 0, 'f'},
         {"css", required_argument, 0, 'S'},
         {0, 0, 0, 0}
     };
 
 
-    int csslen;
+    char *loginfile = NULL;
+    char *favicon = NULL;
     while (1) { //Block to read command line
 
         option_index = 0;
 
         //Reading one option and telling what options are allowed and what needs an argument
-        c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:n:s:S:", long_options,
+        c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
                         &option_index);
 
         //If there are no options it continues
-        if (c == -1)
+        if (c == -1) {
+            if (favicon) {
+                weborf_conf.favlink = malloc(28+strlen(favicon));
+                printf("f=%s-%d\n",favicon,strlen(favicon)+28);
+                weborf_conf.favlink[0] = 0;
+                strcat(weborf_conf.favlink, "<link rel=\"icon\" href=\"");
+                printf("f1=%s\n",weborf_conf.favlink);
+                strcat(weborf_conf.favlink, favicon);
+                printf("f2=%s\n",weborf_conf.favlink);
+                strcat(weborf_conf.favlink, "\" />");
+                printf("f3=%s\n",weborf_conf.favlink);
+            }
+            if (loginfile) {
+                FILE *f = fopen(loginfile, "r");
+                if (f != NULL) {
+                    size_t len = 0;
+                    if (!weborf_conf.user && getline(&weborf_conf.user, &len, f) != -1)
+                        strtok(weborf_conf.user, "\n");
+                    if (!weborf_conf.pass && getline(&weborf_conf.pass, &len, f) != -1)
+                        strtok(weborf_conf.pass, "\n");
+                    fclose(f);
+                }
+            }
+            if (weborf_conf.user && weborf_conf.pass)
+                weborf_conf.authsock = "";
+            printf("[%s:%s]%s\n",weborf_conf.user,weborf_conf.pass,weborf_conf.authsock);
             break;
+        }
 
         switch (c) {
         case 'k':
@@ -272,11 +302,12 @@ void configuration_load(int argc, char *argv[]) {
             break;
         case 'U':
             weborf_conf.user = optarg;
-            weborf_conf.authsock = "embedded";
             break;
         case 'P':
             weborf_conf.pass = optarg;
-            weborf_conf.authsock = "embedded";
+            break;
+        case 'l':
+            loginfile = optarg;
             break;
         case 'n':
             weborf_conf.name = optarg;
@@ -284,13 +315,12 @@ void configuration_load(int argc, char *argv[]) {
         case 's':
             weborf_conf.sig = optarg;
             break;
+        case 'f':
+            favicon = optarg;
+            break;
         case 'S':
-            csslen=strlen(weborf_conf.css);
-            if (csslen+strlen(optarg) >= CSSLEN) {
-                fprintf(stderr,"The supplied CSS code is too long, max %d\n",CSSLEN-csslen);
-                exit(19);
-            }
-            strcpy(weborf_conf.css+strlen(weborf_conf.css), optarg);
+            weborf_conf.css = malloc(strlen(weborf_conf.css)+strlen(optarg)+1);
+            strcat(weborf_conf.css, optarg);
             break;
         default:
             exit(19);

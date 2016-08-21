@@ -32,9 +32,7 @@ extern weborf_configuration_t weborf_conf;
 static int emb_check_password(char *username, char *password) {
     if (weborf_conf.user == NULL || weborf_conf.pass == NULL) return 0;
     else {
-        char *user=weborf_conf.user;
-        char *pass=weborf_conf.pass;
-        if (strncmp(username,user,strlen(user))==0 && strncmp(password,pass,strlen(pass))==0)
+        if (strcmp(username,weborf_conf.user)==0 && strcmp(password,weborf_conf.pass)==0)
             return 0;
         return -1;
     }

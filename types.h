@@ -117,7 +117,8 @@ typedef struct {
     char *pass;                 //Password for authentication
     char *name;                 //Name of the application
     char *sig;                  //Signature of the application
-    char css[CSSLEN];           //The CSS style definitions for the webpage
+    char *favlink;              //the html link element with the URL to a favicon
+    char *css;                  //The CSS style definitions for the webpage
 
     char *indexes[MAXINDEXCOUNT];//List of pointers to index files
     int indexes_l;              //Count of the list

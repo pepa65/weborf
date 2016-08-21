@@ -67,7 +67,6 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 #define URI_LEN 256
 #define PATH_LEN 1024
 #define MIMETYPELEN 15          //Size of mimetype string
-#define CSSLEN 3000             //Size of the extended CSS stylesheet
 
 //Number of index pages allowed to search
 #define MAXINDEXCOUNT 10

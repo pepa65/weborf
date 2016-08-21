@@ -41,7 +41,7 @@ extern weborf_configuration_t weborf_conf;
 Checks that the authentication socket exists and is a unix socket
 */
 void auth_set_socket(char *u_socket) {
-    if (weborf_conf.authsock != "embedded") {
+    if (weborf_conf.authsock != "") {
         struct stat sb;
         if (stat(u_socket, &sb) == -1) {
             perror("Existing unix socket expected");
@@ -75,8 +75,7 @@ int auth_check_request(connection_t *connection_prop) {
 
     char* auth=strstr(connection_prop->http_param,"Authorization: Basic ");//Locates the auth information
     if (auth==NULL) { //No auth informations
-        username[0]=0;
-        //password[0]=0;
+        password=NULL;
     } else { //Retrieves provided username and password
         char*auth_end=strstr(auth,"\r\n");//Finds the end of the header
         if (auth_end==NULL) return -1;
@@ -102,7 +101,7 @@ int auth_check_request(connection_t *connection_prop) {
 
     int result=-1;
 
-    if (weborf_conf.authsock == "embedded")
+    if (weborf_conf.authsock == "")
         result=c_auth(connection_prop->page,
                       connection_prop->ip_addr,
                       connection_prop->method,
