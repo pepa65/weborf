@@ -272,11 +272,16 @@ void * instance(void * nulla) {
     signal(SIGPIPE, SIG_IGN);//Ignores SIGPIPE
 
 #ifdef IPV6
-    struct sockaddr_in6 addr;//Local and remote address
-    socklen_t addr_l=sizeof(struct sockaddr_in6);
-#else
-    struct sockaddr_in addr;
-    int addr_l=sizeof(struct sockaddr_in);
+    if (weborf_conf.ipv6) {
+        struct sockaddr_in6 addr;//Local and remote address
+        socklen_t addr_l=sizeof(struct sockaddr_in6);
+    }
+    else {
+#endif
+        struct sockaddr_in addr;
+        int addr_l=sizeof(struct sockaddr_in);
+#ifdef IPV6
+    }
 #endif
 
     if (mime_init(&thread_prop.mime_token)!=0 || buffer_init(&read_b,BUFFERED_READER_SIZE)!=0 || buf==NULL || connection_prop.strfile==NULL) { //Unable to allocate the buffer
@@ -1249,11 +1254,16 @@ void inetd() {
 #endif
 
 #ifdef IPV6
-    struct sockaddr_in6 addr;//Local and remote address
-    socklen_t addr_l=sizeof(struct sockaddr_in6);
-#else
-    struct sockaddr_in addr;
-    int addr_l=sizeof(struct sockaddr_in);
+    if (weborf_conf.ipv6) {
+        struct sockaddr_in6 addr;//Local and remote address
+        socklen_t addr_l=sizeof(struct sockaddr_in6);
+    }
+    else {
+#endif
+        struct sockaddr_in addr;
+        int addr_l=sizeof(struct sockaddr_in);
+#ifdef IPV6
+    }
 #endif
 
     if (mime_init(&thread_prop.mime_token)!=0 || buffer_init(&read_b,BUFFERED_READER_SIZE)!=0 || buf==NULL || connection_prop.strfile==NULL) { //Unable to allocate the buffer

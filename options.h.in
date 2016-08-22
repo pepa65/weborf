@@ -37,7 +37,7 @@ Some modification in this branch: pepa65 <solusos@passchier.net>
 #define PORT "8080"             //Default port
 
 #ifdef _POSIX_IPV6              //Enables ipv6 if supported
-//Delete the following line to use IPv4 instead.
+//Delete/comment the following line to disable IPv6
 #define IPV6
 #endif
 

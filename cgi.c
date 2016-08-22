@@ -93,20 +93,23 @@ static inline void cgi_set_http_env_vars(char *http_param) { //Sets Enviroment v
  * */
 static inline void cgi_set_SERVER_ADDR_PORT(int sock) {
 
-#ifdef IPV6
     char loc_addr[INET6_ADDRSTRLEN];
-    struct sockaddr_in6 addr;
-    socklen_t addr_l=sizeof(struct sockaddr_in6);
-
-    getsockname(sock, (struct sockaddr *)&addr, &addr_l);
-    inet_ntop(AF_INET6, &addr.sin6_addr,(char*)&loc_addr, INET6_ADDRSTRLEN);
-#else
-    char loc_addr[INET_ADDRSTRLEN];
-    struct sockaddr_in addr;
-    int addr_l=sizeof(struct sockaddr_in);
-
-    getsockname(sock, (struct sockaddr *)&addr,(socklen_t *) &addr_l);
-    inet_ntop(AF_INET, &addr.sin_addr,(char*)&loc_addr, INET_ADDRSTRLEN);
+#ifdef IPV6
+    if (weborf_conf.ipv6) {
+        struct sockaddr_in6 addr;
+        socklen_t addr_l=sizeof(struct sockaddr_in6);
+        getsockname(sock, (struct sockaddr *)&addr, &addr_l);
+        inet_ntop(AF_INET6, &addr.sin6_addr,(char*)&loc_addr, INET6_ADDRSTRLEN);
+    }
+    else {
+#endif
+        //char loc_addr[INET_ADDRSTRLEN];
+        struct sockaddr_in addr;
+        int addr_l=sizeof(struct sockaddr_in);
+        getsockname(sock, (struct sockaddr *)&addr,(socklen_t *) &addr_l);
+        inet_ntop(AF_INET, &addr.sin_addr,(char*)&loc_addr, INET_ADDRSTRLEN);
+#ifdef IPV6
+    }
 #endif
 
     setenv("SERVER_ADDR",(char*)&loc_addr,true);

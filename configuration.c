@@ -37,6 +37,9 @@ weborf_configuration_t weborf_conf = {
     .is_inetd = false,
     .virtual_host = false,
     .exec_script = true,
+#ifdef IPV6
+    .ipv6 = false,
+#endif
     .ip = NULL,
     .port = PORT,
     .basedir=BASEDIR,
@@ -181,6 +184,9 @@ void configuration_load(int argc, char *argv[]) {
         {"help", no_argument, 0, 'h'},
         {"port", required_argument, 0, 'p'},
         {"ip", required_argument, 0, 'i'},
+#ifdef IPV6
+        {"ipv6", no_argument, 0, 'e'},
+#endif
         {"uid", required_argument, 0, 'u'},
         {"daemon", no_argument, 0, 'd'},
         {"basedir", required_argument, 0, 'b'},
@@ -212,7 +218,11 @@ void configuration_load(int argc, char *argv[]) {
         option_index = 0;
 
         //Reading one option and telling what options are allowed and what needs an argument
+#ifdef IPV6
+        c = getopt_long(argc, argv, "ktTMmvhp:i:eI:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
+#else
         c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
+#endif
                         &option_index);
 
         //If there are no options it continues
@@ -288,6 +298,11 @@ void configuration_load(int argc, char *argv[]) {
         case 'i':
             weborf_conf.ip = optarg;
             break;
+#ifdef IPV6
+        case 'e':
+            weborf_conf.ipv6 = true;
+            break;
+#endif
         case 'u':
             weborf_conf.uid = strtol(optarg, NULL, 0);
             break;

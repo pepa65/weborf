@@ -112,6 +112,9 @@ typedef struct {
     bool exec_script;           //Enable CGI if false
     bool tar_directory;         //Sends directories compressed into tar-files
     char *ip;                   //IP addr with default value
+#ifdef IPV6
+    bool *ipv6;                 //Only accepts IPv6 addressing instead of IPv4
+#endif
     char *port;                 //port with default value
     char *user;                 //Username for authentication
     char *pass;                 //Password for authentication

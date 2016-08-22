@@ -231,10 +231,13 @@ void help() {
            "  -C, --cache   sets the directory to use for cache files\n"
            "  -c, --cgi     list of cgi files+binaries to execute, comma-separated\n"
            "  -d, --daemon  keep running, as a daemon\n"
+#ifdef IPV6
+           "  -e, --ipv6    sets extended IPv6 addressing mode only, no IPv4\n"
+#endif
            "  -f, --favicon followed by the URL of a favicon for the webpage\n"
            "  -h, --help    display this help and exit\n"
            "  -I, --index   list of index files, comma-separated\n"
-           "  -i, --ip      followed by IP address to listen on (dotted format)\n"
+           "  -i, --ip      followed by IP address to listen on\n"
            "  -k, --caps    lists the capabilities of the binary\n"
            "  -l, --login   filename with login credentials: first line is username,\n"
            "                  second line is password; superseded by -U and -P\n"
