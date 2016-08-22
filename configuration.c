@@ -48,7 +48,7 @@ weborf_configuration_t weborf_conf = {
     .pass = NULL,
     .name = NAME,
     .sig = SIGNATURE,
-    .favlink = NULL,
+    .favlink = "",
     .css = CSS,
 
 #ifdef SEND_MIMETYPES
@@ -229,14 +229,10 @@ void configuration_load(int argc, char *argv[]) {
         if (c == -1) {
             if (favicon) {
                 weborf_conf.favlink = malloc(28+strlen(favicon));
-                printf("f=%s-%d\n",favicon,strlen(favicon)+28);
                 weborf_conf.favlink[0] = 0;
                 strcat(weborf_conf.favlink, "<link rel=\"icon\" href=\"");
-                printf("f1=%s\n",weborf_conf.favlink);
                 strcat(weborf_conf.favlink, favicon);
-                printf("f2=%s\n",weborf_conf.favlink);
                 strcat(weborf_conf.favlink, "\" />");
-                printf("f3=%s\n",weborf_conf.favlink);
             }
             if (loginfile) {
                 FILE *f = fopen(loginfile, "r");
@@ -251,7 +247,6 @@ void configuration_load(int argc, char *argv[]) {
             }
             if (weborf_conf.user && weborf_conf.pass)
                 weborf_conf.authsock = "";
-            printf("[%s:%s]%s\n",weborf_conf.user,weborf_conf.pass,weborf_conf.authsock);
             break;
         }
 
