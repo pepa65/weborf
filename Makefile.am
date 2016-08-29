@@ -1,4 +1,4 @@
-SUBDIRS = cgi_wrapper
+#SUBDIRS = cgi_wrapper
 
 bin_PROGRAMS = weborf
 weborf_SOURCES = \
