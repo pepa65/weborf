@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 weborf_configuration_t weborf_conf = {
     .tar_directory = false,
+    .zip = false,
     .is_inetd = false,
     .virtual_host = false,
     .exec_script = true,
@@ -200,6 +201,7 @@ void configuration_load(int argc, char *argv[]) {
         {"mime", no_argument,0,'m'},
         {"inetd", no_argument,0,'T'},
         {"tar", no_argument,0,'t'},
+        {"zip", no_argument,0,'z'},
         {"user", required_argument, 0, 'U'},
         {"pass", required_argument, 0, 'P'},
         {"login", required_argument, 0, 'l'},
@@ -219,9 +221,9 @@ void configuration_load(int argc, char *argv[]) {
 
         //Reading one option and telling what options are allowed and what needs an argument
 #ifdef IPV6
-        c = getopt_long(argc, argv, "ktTMmvhp:i:eI:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
+        c = getopt_long(argc, argv, "ktzTMmvhp:i:eI:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
 #else
-        c = getopt_long(argc, argv, "ktTMmvhp:i:I:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
+        c = getopt_long(argc, argv, "ktzTMmvhp:i:I:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
 #endif
                         &option_index);
 
@@ -256,6 +258,9 @@ void configuration_load(int argc, char *argv[]) {
             break;
         case 't':
             weborf_conf.tar_directory=true;
+            break;
+        case 'z':
+            weborf_conf.zip=true;
             break;
         case 'T':
             weborf_conf.is_inetd=true;

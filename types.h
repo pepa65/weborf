@@ -111,6 +111,7 @@ typedef struct {
     bool virtual_host;          //True if must check for virtual hosts
     bool exec_script;           //Enable CGI if false
     bool tar_directory;         //Sends directories compressed into tar-files
+    bool zip;                   //Compresses with zip instead of tgz
     char *ip;                   //IP addr with default value
 #ifdef IPV6
     bool ipv6;                  //Only accepts IPv6 addressing instead of IPv4

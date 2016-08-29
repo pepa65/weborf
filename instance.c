@@ -1197,11 +1197,10 @@ static int tar_send_dir(connection_t* connection_prop) {
 
     if (headers==NULL) return ERR_NOMEM;
 
-    snprintf(headers,HEADBUF ,
-             "Content-Type: application/x-gzip\r\n"
-             "Content-Disposition: attachment; filename=\"%s.tgz\"\r\n",
-             strrchr(connection_prop->strfile,'/')+1
-            );
+    char *content;
+    if (weborf_conf.zip) content = "Content-Type: application/zip\r\nContent-Disposition: attachment; filename=\"%s.zip\"\r\n";
+    else content = "Content-Type: application/x-gzip\r\nContent-Disposition: attachment; filename=\"%s.tgz\"\r\n";
+    snprintf(headers, HEADBUF, content, strrchr(connection_prop->strfile,'/')+1);
 
     send_http_header(200,
                      0,
@@ -1214,11 +1213,12 @@ static int tar_send_dir(connection_t* connection_prop) {
 
     int pid=fork();
 
-    if (pid==0) { //child, executing tar
+    if (pid==0) { //child, executing tar/zip
         fclose (stdout); //Closing the stdout
         dup(connection_prop->sock); //Redirects the stdout
         nice(1); //Reducing priority
-        execlp("tar","tar","-cz",connection_prop->strfile,(char *)0);
+        if (weborf_conf.zip) execlp("zip", "zip", "-qr", "-", connection_prop->strfile, NULL);
+        else execlp("tar", "tar", "-cz", connection_prop->strfile, NULL);
     } else if (pid>0) { //Father, does nothing
         int status;
         waitpid(pid,&status,0);

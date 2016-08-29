@@ -258,7 +258,8 @@ void help() {
            "                  this user will read and execute files for weborf\n"
            "  -V, --virtual list of virtualhosts in the form host=basedir, comma-separated\n"
            "  -v, --version print program version\n"
-           "  -x, --noexec  just send each file instead of executing scripts\n\n"
+           "  -x, --noexec  just send each file instead of executing scripts\n"
+           "  -z, --zip     compress as zip instead of tgz\n\n"
 
 
            "Report bugs here https://github.com/ltworf/weborf\n"
