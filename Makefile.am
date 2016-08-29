@@ -35,33 +35,33 @@ EXTRA_DIST = \
     myio.h \
     mystring.h \
     queue.h \
-    utils.h \
-    examples \
-    daemon \
-    weborf.conf \
-    qweborf/__init__.py \
-    qweborf/main.ui \
-    qweborf/nhelper.py \
-    qweborf/whelper.py \
-    qweborf/qweborf.py \
-    qweborf/qweborf \
-    qweborf/qweborf.1 \
-    qweborf/qweborf.desktop \
-    qweborf/qweborf_servicemenu.desktop \
-    qweborf.setup.py
+    utils.h
+#    examples \
+#    daemon \
+#    weborf.conf \
+#    qweborf/__init__.py \
+#    qweborf/main.ui \
+#    qweborf/nhelper.py \
+#    qweborf/whelper.py \
+#    qweborf/qweborf.py \
+#    qweborf/qweborf \
+#    qweborf/qweborf.1 \
+#    qweborf/qweborf.desktop \
+#    qweborf/qweborf_servicemenu.desktop \
+#    qweborf.setup.py
  
 dist-hook:
 	rm -rf `find $(distdir)/ -name .svn`
 
-dist_man_MANS = weborf.1 weborf.conf.5
+#dist_man_MANS = weborf.1 weborf.conf.5
 
-init_SCRIPTS = daemon/weborf
+#init_SCRIPTS = daemon/weborf
 
-sysconf_DATA = weborf.conf
+#sysconf_DATA = weborf.conf
 
-dist_doc_DATA = \
-    CHANGELOG \
-    COPYING \
-    Credits \
-    README.md \
-    TODOlist 
+#dist_doc_DATA = \
+#    CHANGELOG \
+#    COPYING \
+#    Credits \
+#    README.md \
+#    TODOlist
