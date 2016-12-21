@@ -30,6 +30,7 @@ extern weborf_configuration_t weborf_conf;
 // Buffer for html must be allocated by the calling function.
 // bufsize is the size of the buffer allocated for html
 // parent is true when the dir has a parent dir
+// Returns the size of the html; -1: unable to open; -2: out of memory
 int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bool parent) {
     int pagesize=0; // Written bytes on the page
     int maxsize = bufsize - 1; // String's max size
@@ -37,15 +38,17 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     char *color; // Depending on row count chooses a background color
     char *measure; // contains measure unit for file's size (B, KiB, MiB)
     int counter = 0;
+    int errcode = 0;
 
     char path[INBUFFER]; // Buffer to contain element's absolute path
 
-    struct dirent **namelist;
+    struct dirent **namelist = NULL;
     counter = scandir(connection_prop->strfile, &namelist, 0, alphasort);
 
 
     if (counter <0) { //Open not succesfull
-        return -1;
+        errcode = -1;
+        goto escape;
     }
 
     // Specific header table
@@ -72,7 +75,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
     for (i=0; i<counter; i++) {
         // Skipping hidden files
-        if (namelist[i]->d_name[0] == '.') {
+        if (namelist[i]->d_name[0] == '.' || errcode) {
             free(namelist[i]);
             continue;
         }
@@ -123,14 +126,15 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
         }
 
         free(namelist[i]);
+        if (maxsize <= 0) errcode = -2; // Out of memory
     }
-
+escape:
     free(namelist);
-
-    printf_s=snprintf(html+pagesize,maxsize,"</table></div><div class=\"foot\">%s</div></body></html>",weborf_conf.sig);
-    pagesize+=printf_s;
-
-    return pagesize;
+    if (errcode == 0) {
+        printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
+        pagesize+=printf_s;
+        return pagesize;
+    } else return errcode;
 }
 
 // Prints version information

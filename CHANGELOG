@@ -1,3 +1,8 @@
+0.13.4a 2016-12-21 pepa65 <solusos@passchier.net>
+- Backport fixes from ltworf
+  - Workaround API breaking in PyQt
+  - Convert things to string before showing them in qweborf
+
 0.13.3b 2016-12-21 pepa65 <solusos@passchier.net>
 - Sanitized comments
 - Allow for current directory to be the standard webroot

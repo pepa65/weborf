@@ -655,7 +655,16 @@ int write_dir(char* real_basedir,connection_t* connection_prop) {
     if ((pagelen=list_dir (connection_prop,html,MAXSCRIPTOUT,parent))<0) {
         // Creates the page
         free(html); // Frees the memory used for the page
-        return ERR_FILENOTFOUND;
+        switch (pagelen) {
+            case -1: 
+                return ERR_FILENOTFOUND;
+            case -2: 
+#ifdef SERVERDBG
+                syslog(LOG_ERR, "Directory too large to be listed");
+#endif
+                return ERR_INSUFFICIENT_STORAGE;
+        }
+
     } else { // If there are no errors sends the page
 
         // WARNING: using the directory's mtime here allows better caching and
@@ -879,7 +888,7 @@ int request_auth(connection_t *connection_prop) {
     char * page=head+HEADBUF;
 
     // Prepares html page
-    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Authorization required</h1><p>%s</p></div><div class=\"foot\">%s</div></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,descr,weborf_conf.sig);
+    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Authorization required</h1><p>%s</p>%s",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,descr,HTMLFOOT);
 
     // Prepares http header
     int head_len = snprintf(head,HEADBUF,"HTTP/1.1 401 Authorization Required\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nWWW-Authenticate: Basic realm=\"%s\"\r\n\r\n",page_len,descr);
@@ -919,7 +928,7 @@ int send_err(connection_t *connection_prop,int err,char* descr) {
     char * page=head+HEADBUF;
 
     // Prepares the page
-    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Error %d</h1>%s </div><div class=\"foot\">%s</div></body></html>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,err,descr,weborf_conf.sig);
+    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Error %d</h1>%s %s",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,err,descr,HTMLFOOT);
 
     // Prepares the header
     int head_len = snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n",err,descr ,(int)page_len);

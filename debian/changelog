@@ -1,3 +1,29 @@
+weborf (0.13.4-3) unstable; urgency=low
+
+  * Make weborf-daemon depend on lsb-base
+
+ -- Salvo 'LtWorf' Tomaselli <tiposchi@tiscali.it>  Thu, 03 Nov 2016 22:50:29 +0100
+
+weborf (0.13.4-2) unstable; urgency=low
+
+  * Fix segmentation fault when opening extremely large directories
+
+ -- Salvo 'LtWorf' Tomaselli <tiposchi@tiscali.it>  Sun, 25 Sep 2016 17:04:34 +0200
+
+weborf (0.13.4-1) unstable; urgency=low
+
+  * New upstream release
+  * Bumped Standards-Version to 3.9.8
+  * Removed decorator patch, now upstream
+
+ -- Salvo 'LtWorf' Tomaselli <tiposchi@tiscali.it>  Mon, 05 Sep 2016 21:46:49 +0200
+
+weborf (0.13.3-2) unstable; urgency=medium
+
+  * Remove decorators to workaround a bug in PyQt
+
+ -- Salvo 'LtWorf' Tomaselli <tiposchi@tiscali.it>  Mon, 29 Aug 2016 22:53:03 +0200
+
 weborf (0.13.3-1) unstable; urgency=low
 
   * New upstream release

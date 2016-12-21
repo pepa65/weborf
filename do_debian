@@ -4,10 +4,8 @@ autoreconf -f -i
 make
 
 PRJDIR=$(pwd)
-TMPDIR=/amem/
+TMPDIR=/tmp/
 VERSION=$(./weborf --version | head -n 1 | cut -d\  -f2)
-
-
 
 rm -rf $TMPDIR/weborf*
 make clean
