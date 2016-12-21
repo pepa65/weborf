@@ -1,22 +1,6 @@
-/*
-Weborf
-Copyright (C) 2010  Salvo "LtWorf" Tomaselli
+// mynet.c
+// Weborf copyright 2010 (GPL3+) Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
 
-Weborf is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@author Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
-*/
 #include "options.h"
 
 #include <arpa/inet.h>
@@ -35,32 +19,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern weborf_configuration_t weborf_conf;
 
-
-/**
- * Creates the server socket and performs some setsockopt
- * on it.
- * */
+// Creates the server socket and performs some setsockopt on it.
 int net_create_server_socket() {
     int s;
     int val;
 
-//Creates the socket
+    // Creates the socket
 #ifdef IPV6
     if (weborf_conf.ipv6) s = socket(PF_INET6, SOCK_STREAM, 0);
     else
 #endif
         s = socket(PF_INET, SOCK_STREAM, 0);
 
-
-    /*
-    This futile system call is here just because a debian mantainer decided
-    that the default behavior must be to listen only to IPv6 connections
-    excluding IPv4 ones.
-    So this restores the logic and normal behavior of accepting connections
-    without being racist about the client's address.
-    */
-
 #ifdef IPV6
+    // This futile system call is here just because a debian mantainer decided
+    // that the default behavior must be to listen only to IPv6 connections
+    // excluding IPv4 ones.
+    // So this restores the logic and normal behavior of accepting connections
+    // without being racist about the client's address.
     if (weborf_conf.ipv6) {
         val=0;
         setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&val, sizeof(val));
@@ -68,7 +44,7 @@ int net_create_server_socket() {
 #endif
 
     val = 1;
-    //Makes port reusable immediately after termination.
+    // Makes port reusable immediately after termination.
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) < 0) {
         perror("ruseaddr(any)");
         syslog(LOG_ERR, "reuseaddr(any)");
@@ -86,20 +62,20 @@ int net_create_server_socket() {
 
 void net_bind_and_listen(int s) {
 
-    //Not used when the -e/--ipv6 commandline argument is active
+    // Not used when the -e/--ipv6 commandline argument is active
     struct sockaddr_in locAddr;
     int ipAddrL = sizeof(struct sockaddr_in);
 
 #ifdef IPV6
-    struct sockaddr_in6 locAddr6;   //Local and remote address
+    struct sockaddr_in6 locAddr6; // Local and remote address
     if (weborf_conf.ipv6) {
-        //Bind
+        // Bind
         memset(&locAddr6, 0, sizeof(locAddr6));
         locAddr6.sin6_family = AF_INET6;
         locAddr6.sin6_port = htons(strtol(weborf_conf.port, NULL, 0));
-        if (weborf_conf.ip == NULL) { //Default ip, listens to all the interfaces
+        if (weborf_conf.ip == NULL) { // Default ip, listens to all the interfaces
             locAddr6.sin6_addr = in6addr_any;
-        } else { //Custom ip
+        } else { // Custom ip
             if (inet_pton(AF_INET6, weborf_conf.ip, &locAddr6.sin6_addr) == 0) {
                 printf("Invalid IPv6 address: %s\n", weborf_conf.ip);
                 exit(2);
@@ -115,10 +91,10 @@ void net_bind_and_listen(int s) {
     }
     else {
 #endif
-        //Prepares socket's address
-        locAddr.sin_family = AF_INET;   //Internet socket
+        // Prepares socket's address
+        locAddr.sin_family = AF_INET; // Internet socket
         {
-            //Check the validity of port param and uses it
+            // Check the validity of port param and uses it
             unsigned int p = strtol(weborf_conf.port, NULL, 0);
             if (p < 1 || p > 65535) {
                 printf("Invalid port number: %d\n", p);
@@ -126,8 +102,9 @@ void net_bind_and_listen(int s) {
             }
             locAddr.sin_port = htons(p);
         }
-        if (weborf_conf.ip == NULL) weborf_conf.ip = "0.0.0.0"; //Default ip address
-        if (inet_aton(weborf_conf.ip, &locAddr.sin_addr) == 0) { //Converts ip to listen in binary format
+        if (weborf_conf.ip == NULL) weborf_conf.ip = "0.0.0.0"; // Default ip address
+        if (inet_aton(weborf_conf.ip, &locAddr.sin_addr) == 0) {
+            // Converts ip to listen in binary format
             printf("Invalid IPv4 address: %s\n", weborf_conf.ip);
             exit(2);
         }
@@ -135,7 +112,7 @@ void net_bind_and_listen(int s) {
         syslog(LOG_INFO, "Listening on address: %s:%d",
                inet_ntoa(locAddr.sin_addr), ntohs(locAddr.sin_port));
 #endif
-        //Bind
+        // Bind
         if (bind(s, (struct sockaddr *) &locAddr, ipAddrL) == -1) {
             perror("trying to bind");
 #ifdef SOCKETDBG
@@ -147,10 +124,9 @@ void net_bind_and_listen(int s) {
     }
 #endif
 
-    listen(s, MAXQ); //Listen to the socket
+    listen(s, MAXQ); // Listen to the socket
 
 }
-
 
 void net_getpeername(int socket,char* buffer) {
 

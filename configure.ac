@@ -1,4 +1,4 @@
-AC_INIT([weborf], [0.13.3a], [tiposchi@tiscali.it])
+AC_INIT([Weborf], [0.13.3b], [solusos@passchier.net], [weborf], [http://github.com/pepa65/weborf])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([queue.c])
 AC_CONFIG_HEADERS([config.h])
@@ -7,9 +7,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AM_MAINTAINER_MODE
 
-
 AC_PROG_CC
-
 
 AC_SUBST([cgibindir], [${libdir}/cgi-bin])
 AC_SUBST([initdir], [${sysconfdir}/init.d])
@@ -18,7 +16,6 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h str
 AC_CHECK_FUNCS([alarm inet_ntoa localtime_r memmove memset mkdir putenv rmdir setenv socket strstr strtol strtoul ftruncate strrchr])
 
 AC_SYS_LARGEFILE
-
 
 AC_HEADER_STDBOOL
 AC_TYPE_OFF_T
@@ -41,6 +38,5 @@ AC_CONFIG_FILES([Makefile
     cgi_wrapper/Makefile
     options.h
 ])
-
 
 AC_OUTPUT

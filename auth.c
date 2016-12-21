@@ -1,22 +1,6 @@
-/*
-Weborf
-Copyright (C) 2010  Salvo "LtWorf" Tomaselli
+// auth.c
+// Weborf copyright 2010 (GPL3+) Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
 
-Weborf is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@author Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
-*/
 #include "options.h"
 
 #include <sys/socket.h>
@@ -37,9 +21,7 @@ extern weborf_configuration_t weborf_conf;
 
 #include "embedded_auth.h"
 
-/**
-Checks that the authentication socket exists and is a unix socket
-*/
+// Checks that the authentication socket exists and is a unix socket
 void auth_set_socket(char *u_socket) {
     if (weborf_conf.authsock != "") {
         struct stat sb;
@@ -63,10 +45,8 @@ void auth_set_socket(char *u_socket) {
     }
 }
 
-/**
-This function checks if the authentication can be granted or not calling the external program.
-Returns 0 if authorization is granted.
-*/
+// This function checks if the authentication can be granted or not calling
+//  the external program. Returns 0 if authorization is granted.
 int auth_check_request(connection_t *connection_prop) {
     if (weborf_conf.authsock==NULL) return 0;
 

@@ -1,23 +1,5 @@
-/*
-Weborf
-Copyright (C) 2007  Salvo "LtWorf" Tomaselli
-
-Weborf is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@author Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
-@author Salvo Rinaldi <salvin@anche.no>
- */
+// instance.h
+// Weborf copyright 2007 (GPL3+) Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
 
 #ifndef WEBORF_INSTANCE_H
 #define WEBORF_INSTANCE_H
@@ -33,8 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "webdav.h"
 #endif
 
-
-//Request
+// Requests
 #define INVALID -1
 #define GET 0
 #define POST 1
@@ -49,10 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MKCOL 7
 #endif
 
-
 #define NO_ACTION -120
 
-//Errors
+// Errors
 #define ERR_PRECONDITION_FAILED -14
 #define ERR_NOT_ALLOWED -13
 #define ERR_INSUFFICIENT_STORAGE -12
@@ -68,11 +48,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ERR_FILENOTFOUND -2
 #define ERR_BRKPIPE -1
 
-//Ok
+// OK
 #define OK_CREATED 1
 #define OK_NOCONTENT 2
 
-//Protocol version
+// Protocol version
 #define HTTP_0_9 57
 #define HTTP_1_0 48
 #define HTTP_1_1 2

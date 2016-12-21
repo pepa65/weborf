@@ -1,13 +1,31 @@
-0.13.3
+0.13.3b 2016-12-21 pepa65 <solusos@passchier.net>
+- Sanitized comments
+- Allow for current directory to be the standard webroot
+- Output what is served where on startup
+
+0.13.3a 2016-08-13 pepa65 <solusos@passchier.net>
+- New commandline options:
+  -z|--zip Use zip instead of tar
+  -U|--user User for authentication
+  -P|--pass Password for authentication
+  -l|--login File with login credentials
+  -n|--name Name of application in web interface
+  -s|--sig Signature in the footer
+  -f|--favicon Favicon to use for the web interface
+  -S|--css Additional CSS for the web interface
+- Modified html head and css
+- User authentication through command-line or config file
+
+0.13.3 2016-03-16
 - Better desktop integration for qweborf
 
-0.13.2
+0.13.2 2016-02-09
 - Fix base64 decoding bug
 
-0.13.1
+0.13.1 2015-10-15
 - Port qweborf to Python3 and Qt5
 
-0.13
+0.13 2012-12-03
 - Shows last modified column in directory listing (Rev 419)
 - Webdav module can send mimetype
 - Bug: fixes denial of service in case of malformed header range (Rev 429)

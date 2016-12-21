@@ -1,22 +1,6 @@
-/*
-Weborf
-Copyright (C) 2010  Salvo "LtWorf" Tomaselli
+// configuration.c
+// Weborf copyright 2010 (GPL3+) Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
 
-Weborf is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@author Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
-*/
 #include "options.h"
 
 #include <unistd.h>
@@ -43,11 +27,15 @@ weborf_configuration_t weborf_conf = {
 #endif
     .ip = NULL,
     .port = PORT,
-    .basedir=BASEDIR,
+#ifdef BASEDIR
+    .basedir = BASEDIR,
+#else
+    .basedir = "",
+#endif
     .uid = ROOTUID,
     .user = NULL,
     .pass = NULL,
-    .name = NAME,
+    .name = PACKAGE_NAME,
     .sig = SIGNATURE,
     .favlink = "",
     .css = CSS,
@@ -57,11 +45,8 @@ weborf_configuration_t weborf_conf = {
 #endif
 };
 
-/**
- * Enables sending mime types in response to GET requests
- * or prints an error and exits if the support was not
- * compiled
- * */
+// Enables sending mime types in response to GET requests
+// or prints an error and exits if the support was not compiled
 static void configuration_enable_sending_mime() {
 #ifdef SEND_MIMETYPES
     weborf_conf.send_content_type=true;
@@ -72,25 +57,20 @@ static void configuration_enable_sending_mime() {
 }
 
 
-/**
-Sets the base dir, making sure that it is really a directory.
- */
+// Sets the base dir, making sure that it is really a directory.
 static void configuration_set_basedir(char * bd) {
     struct stat stat_buf;
     stat(bd, &stat_buf);
 
     if (!S_ISDIR(stat_buf.st_mode)) {
-        //Not a directory
+        // Not a directory
         printf("%s must be a directory\n",bd);
         exit(1);
     }
     weborf_conf.basedir = bd;
 }
 
-/**
- * Sets default CGI configuration,
- * run .php and .py as CGI
- * */
+// Sets default CGI configuration, run .php and .py as CGI
 static void configuration_set_default_CGI() {
     weborf_conf.cgi_paths.len=4;
     weborf_conf.cgi_paths.data[0]=".php";
@@ -103,9 +83,7 @@ static void configuration_set_default_CGI() {
     weborf_conf.cgi_paths.data_l[3]=strlen(CGI_PY);
 }
 
-/**
- * Sets the default index file
- * */
+// Sets the default index file
 static void configuration_set_default_index() {
     weborf_conf.indexes[0] = INDEX;
     weborf_conf.indexes_l = 1;
@@ -113,15 +91,15 @@ static void configuration_set_default_index() {
 
 static void configuration_set_cgi(char *optarg) {
     int i = 0;
-    weborf_conf.cgi_paths.len = 1; //count of indexes
-    weborf_conf.cgi_paths.data[0] = optarg; //1st one points to begin of param
-    while (optarg[i++] != 0) { //Reads the string
+    weborf_conf.cgi_paths.len = 1; // count of indexes
+    weborf_conf.cgi_paths.data[0] = optarg; // 1st one points to begin of param
+    while (optarg[i++] != 0) { // Reads the string
         if (optarg[i] == ',') {
-            optarg[i++] = 0; //Nulling the comma
-            //Increasing counter and making next item point to char after the comma
+            optarg[i++] = 0; // Nulling the comma
+            // Increasing counter, making next item point to char after comma
             weborf_conf.cgi_paths.data[weborf_conf.cgi_paths.len++] = &optarg[i];
             if (weborf_conf.cgi_paths.len == MAXINDEXCOUNT) {
-                perror("Too much cgis, change MAXINDEXCOUNT in options.h to allow more");
+                perror("Too many cgis, change MAXINDEXCOUNT in options.h to allow more");
                 exit(6);
             }
         }
@@ -133,18 +111,19 @@ static void configuration_set_cgi(char *optarg) {
 
 }
 
-static void configuration_set_index_list(char *optarg) { //Setting list of indexes
+static void configuration_set_index_list(char *optarg) {
+    // Setting list of indexes
     int i = 0;
-    weborf_conf.indexes_l = 1; //count of indexes
-    weborf_conf.indexes[0] = optarg; //1st one points to begin of param
-    while (optarg[i++] != 0) { //Reads the string
+    weborf_conf.indexes_l = 1; // count of indexes
+    weborf_conf.indexes[0] = optarg; // 1st one points to begin of param
+    while (optarg[i++] != 0) { // Reads the string
 
         if (optarg[i] == ',') {
-            optarg[i++] = 0; //Nulling the comma
-            //Increasing counter and making next item point to char after the comma
+            optarg[i++] = 0; // Nulling the comma
+            // Increasing counter, making next item point to char after comma
             weborf_conf.indexes[weborf_conf.indexes_l++] = &optarg[i];
             if (weborf_conf.indexes_l == MAXINDEXCOUNT) {
-                perror("Too much indexes, change MAXINDEXCOUNT in options.h to allow more");
+                perror("Too many indexes, change MAXINDEXCOUNT in options.h to allow more");
                 exit(6);
             }
         }
@@ -156,11 +135,11 @@ static void configuration_set_virtualhost(char *optarg) {
     weborf_conf.virtual_host = true;
 
     int i = 0;
-    char *virtual = optarg; //1st one points to begin of param
+    char *virtual = optarg; // 1st one points to begin of param
 
-    while (optarg[i++] != 0) { //Reads the string
+    while (optarg[i++] != 0) { // Reads the string
         if (optarg[i] == ',') {
-            optarg[i++] = 0; //Nulling the comma
+            optarg[i++] = 0; // Nulling the comma
             putenv(virtual);
             virtual = &optarg[i];
 
@@ -174,11 +153,10 @@ void configuration_load(int argc, char *argv[]) {
     configuration_set_default_CGI();
     configuration_set_default_index();
 
-
-    int c; //Identify the readed option
+    int c; // Identify the readed option
     int option_index = 0;
 
-    //Declares options
+    // Declares options
     struct option long_options[] = {
         {"version", no_argument, 0, 'v'},
         {"caps", no_argument, 0, 'k'},
@@ -212,14 +190,17 @@ void configuration_load(int argc, char *argv[]) {
         {0, 0, 0, 0}
     };
 
-
+#ifndef BASEDIR
+    weborf_conf.basedir = get_current_dir_name();
+#endif
     char *loginfile = NULL;
     char *favicon = NULL;
-    while (1) { //Block to read command line
+    while (1) { // Block to read command line
 
         option_index = 0;
 
-        //Reading one option and telling what options are allowed and what needs an argument
+        // Reading one option and telling what options are allowed and what
+        // needs an argument
 #ifdef IPV6
         c = getopt_long(argc, argv, "ktzTMmvhp:i:eI:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
 #else
@@ -227,7 +208,7 @@ void configuration_load(int argc, char *argv[]) {
 #endif
                         &option_index);
 
-        //If there are no options it continues
+        // If there are no options it continues
         if (c == -1) {
             if (favicon) {
                 weborf_conf.favlink = malloc(28+strlen(favicon));
