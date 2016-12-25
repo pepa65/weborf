@@ -1,0 +1,5 @@
+aclocal.m4
+config.status
+configure
+do_debian
+build-aux/*
