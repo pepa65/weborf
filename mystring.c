@@ -16,14 +16,16 @@ void strToUpper(char *str) {
 // It also sets the value for the page_len field
 void split_get_params(connection_t* connection_prop) {
     int i=0;
+    // Make sure we keep all '?' in filenames
+    while (connection_prop->page[i]!=0) i++;
     connection_prop->get_params=NULL;
-    while (connection_prop->page[i]!=0) {
+    while (i>0) {
+        i--;
         if (connection_prop->page[i]=='?') {
             connection_prop->page[i]=0;
             connection_prop->get_params=&connection_prop->page[i+1];
             break;
         }
-        i++;
     }
     connection_prop->page_len=i;
 }

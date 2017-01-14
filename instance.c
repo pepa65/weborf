@@ -198,7 +198,6 @@ static inline void handle_requests(char* buf,buffered_read_t * read_b,int * bufF
         syslog(LOG_INFO,"%s - %d - %s %s",connection_prop->ip_addr,connection_prop->status_code,connection_prop->method,connection_prop->page);
 #endif
 
-
         // Non pipelined
         if (connection_prop->keep_alive==false) return;
 
@@ -520,7 +519,8 @@ escape:
 // the appropriate index file or show the list of the files.
 static int get_or_post(connection_t *connection_prop, string_t post_param) {
     // If any url parameter, then tar & gzip
-    if (connection_prop->get_params) return tar_send_dir(connection_prop);
+    if (connection_prop->get_params && strchr(connection_prop->get_params,'/'))
+        return tar_send_dir(connection_prop);
     if (S_ISDIR(connection_prop->strfile_stat.st_mode)) {
         // Requested a directory
         if (weborf_conf.tar_directory) {
@@ -891,7 +891,7 @@ int request_auth(connection_t *connection_prop) {
     int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Authorization required</h1><p>%s</p>%s",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,descr,HTMLFOOT);
 
     // Prepares http header
-    int head_len = snprintf(head,HEADBUF,"HTTP/1.1 401 Authorization Required\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nWWW-Authenticate: Basic realm=\"%s\"\r\n\r\n",page_len,descr);
+    int head_len = snprintf(head,HEADBUF,"HTTP/1.1 401 Authorization Required\r\nServer: " PACKAGE_STRING "\r\nContent-Length: %d\r\nWWW-Authenticate: Basic realm=\"%s\"\r\n\r\n",page_len,descr);
 
     // Sends the header
     if (write (sock,head,head_len)!=head_len) {
@@ -928,10 +928,10 @@ int send_err(connection_t *connection_prop,int err,char* descr) {
     char * page=head+HEADBUF;
 
     // Prepares the page
-    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><h1>Error %d</h1>%s %s",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.name,err,descr,HTMLFOOT);
+    int page_len=snprintf(page,MAXSCRIPTOUT,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><a href=\"/\" title=\"%s\"><h4>%s</h4></a><div class=\"list\"><h1>Error %d</h1>%s %s",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,weborf_conf.basedir,weborf_conf.name,err,descr,HTMLFOOT);
 
     // Prepares the header
-    int head_len = snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " SIGNATURE "\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n",err,descr ,(int)page_len);
+    int head_len = snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " PACKAGE_STRING "\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n",err,descr ,(int)page_len);
 
     // Sends the http header
     if (write (sock,head,head_len)!=head_len) {
@@ -1056,7 +1056,7 @@ int send_http_header(int code, unsigned long long int size,char* headers,bool co
         connection_header="";
     }
 
-    len_head=snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " SIGNATURE "\r\n%s",code,reason_phrase(code),connection_header);
+    len_head=snprintf(head,HEADBUF,"HTTP/1.1 %d %s\r\nServer: " PACKAGE_STRING "\r\n%s",code,reason_phrase(code),connection_header);
 
     // This stuff moves the pointer to the buffer forward, and reduces the left space in the buffer itself
     // Next snprintf will append their strings to the buffer, without overwriting.
@@ -1138,7 +1138,7 @@ static int tar_send_dir(connection_t* connection_prop) {
         dup(connection_prop->sock); // Redirects the stdout
         nice(1); // Reducing priority
         if (weborf_conf.zip) execlp("zip", "zip", "-qr", "-", connection_prop->strfile, NULL);
-        else execlp("tar", "tar", "-cz", connection_prop->strfile, NULL);
+        else execlp("tar", "tar", "-chz", connection_prop->strfile, NULL);
     } else if (pid>0) { // Father, does nothing
         int status;
         waitpid(pid,&status,0);

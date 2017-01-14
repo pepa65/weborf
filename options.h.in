@@ -8,8 +8,6 @@
 #ifndef WEBORF_OPTIONS_H
 #define WEBORF_OPTIONS_H
 
-#define SIGNATURE PACKAGE_NAME "/" VERSION " (GNU/Linux)"
-
 // System
 #define ROOTUID 0               // UID for superuser
 
@@ -60,17 +58,18 @@
 #define HTMLHEAD "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//\
 EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; \
 charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>"
-#define CSS "body{font-family:Arial,sans-serif;} a,a:active{text-decoration:\
-none; color:#116;} a:visited{color:#616;} a:hover,a:focus{text-decoration:\
-underline; color:#611;} body{background-color:#eee} h2{margin-bottom:12px;} \
+#define CSS "body{font-family:Arial,sans-serif;} \
+.foot{font:80%; color:#666; padding-top:4px; margin-bottom:600px;} \
+a,a:active{text-decoration:none; color:#116;} a:visited{color:#616;} \
+a:hover,a:focus{text-decoration:underline; color:#611;} \
+body{background-color:#eee;} h2{margin-bottom:12px;} \
 table{margin-left:12px;} th,td{font:80%; text-align:left;} th{font-weight:\
 bold; padding-right:14px; padding-bottom:3px;} td{padding-right:14px;} \
-td.s,th.s{text-align:right;} div.list{background-color:#fff; border-top:1px \
-solid #666; border-bottom:1px solid #666; padding-top:8px; padding-bottom:\
-12px;} div.foot{font:80%; color:#666; padding-top:4px; padding-bottom:600px} \
+.s,.s{text-align:right;} .list{background-color:#fff; border-top:1px solid #666; \
+border-bottom:1px solid #666; padding-top:8px; padding-bottom:12px;}\
 .i{font-style:italic;} .b{font-weight:bold;} .darker{background-color:#ccc;} \
 .dark{background-color:#eee;} .light{background-color:#fff;}"
-#define HTMLFOOT "</div><div class=\"foot\">" SIGNATURE "</div></body></html>"
+#define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><span class=\"foot\">" PACKAGE_STRING "</span></a></body></html>"
 // SCRIPTS
 #define SCRPT_TIMEOUT 30        // Timeout for the scripts, in seconds
 #define HIDE_CGI_ERRORS         // Hides all the errors

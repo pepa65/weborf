@@ -115,8 +115,8 @@ static inline void cgi_set_SERVER_ADDR_PORT(int sock) {
 static inline void cgi_set_env_vars(connection_t *connection_prop,char *real_basedir) {
 
     // Set CGI needed vars
-    setenv("SERVER_SIGNATURE",SIGNATURE,true);
-    setenv("SERVER_SOFTWARE",SIGNATURE,true);
+    setenv("SERVER_SIGNATURE",PACKAGE_STRING,true);
+    setenv("SERVER_SOFTWARE",PACKAGE_STRING,true);
     setenv("GATEWAY_INTERFACE","CGI/1.1",true);
     setenv("REQUEST_METHOD",connection_prop->method,true); // POST GET
     // TODO for older http version this header might not exist

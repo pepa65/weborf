@@ -1,3 +1,9 @@
+0.13.4b 2017-01-15 pepa65 <solusos@passchier.net>
+- Fix handling of filenames with ?
+- Change option -x/--noexec into -X/--exec and make noexec default
+- Archiving symlinked files/directories
+- Small improvements
+
 0.13.4a 2016-12-21 pepa65 <solusos@passchier.net>
 - Backport fixes from ltworf
   - Workaround API breaking in PyQt

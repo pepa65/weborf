@@ -90,6 +90,8 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
         // get last modified
         localtime_r(&f_prop.st_mtime,&ts);
         strftime(last_modified,URI_LEN, "%a, %d %b %Y %H:%M:%S", &ts);
+        char ext[7];
+        strcpy(ext, (weborf_conf.zip ? "zip" : "tar.gz"));
 
         if (S_ISREG(f_mode)) { // Regular file
 
@@ -108,8 +110,8 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
             }
             char *name = namelist[i]->d_name;
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr class=\"%s\"><td><a href=\"%s?\">file</a></td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
-                              color, name, name, name, (long long int)size, measure, last_modified);
+                    "<tr class=\"%s\"><td><a href=\"%s?/\" title=\"%s.%s\">file</a></td><td><a href=\"%s\">%s</a></td><td>%lld%s</td><td>%s</td></tr>\n",
+                    color, name, name, ext, name, name, (long long int)size, measure, last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
             color = (color == "dark" ? "light" : "dark");
@@ -118,8 +120,8 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
             // Table row for the dir
             char *name = namelist[i]->d_name;
             printf_s=snprintf(html+pagesize,maxsize,
-                              "<tr class=\"%s\"><td class=\"b\"><a href=\"%s?\">dir</a></td><td class=\"b\"><a href=\"%s\">%s</a></td><td></td><td>%s</td></tr>\n",
-                              color, name, name, name, last_modified);
+                    "<tr class=\"%s\"><td class=\"b\"><a href=\"%s?/\" title=\"%s.%s\">dir</a></td><td class=\"b\"><a href=\"%s\">%s</a></td><td></td><td>%s</td></tr>\n",
+                    color, name, name, ext, name, name, last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
             color = (color == "dark" ? "light" : "dark");
@@ -139,7 +141,7 @@ escape:
 
 // Prints version information
 void version() {
-    printf("Weborf %s\n"
+    printf("Weborf " VERSION "\n"
            "Copyright 2007 Salvo 'LtWorf' Tomaselli.\n"
            "This is free software.  You may redistribute copies of it under the terms of\n"
            "the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n"
@@ -147,8 +149,7 @@ void version() {
 
            "Written by Salvo 'LtWorf' Tomaselli and Salvo Rinaldi.\n"
            "Synchronized queue by Prof. Giuseppe Pappalardo\n"
-           "Modifications by pepa65 <solusos@passchier.net>\n"
-           "http://github.com/pepa65/weborf/\n", VERSION);
+           "Modifications by pepa65 <" PACKAGE_BUGREPORT ">\n" PACKAGE_URL "\n");
     exit(0);
 }
 
@@ -213,7 +214,7 @@ void help() {
 #else
                                          "$PWD",
 #endif
-                                         SIGNATURE,CSS);
+                                         PACKAGE_STRING,CSS);
 
     printf("  -a, --auth    followed by absolute path of authentication program\n"
            "  -b, --basedir followed by the path of basedir\n"
@@ -244,12 +245,12 @@ void help() {
            "                this user will read and execute files for weborf\n"
            "  -V, --virtual list of virtualhosts in the form host=basedir, comma-separated\n"
            "  -v, --version print program version\n"
-           "  -x, --noexec  just send each file instead of executing scripts\n"
+           "  -X, --exec    instead of sending each file, execute the script and send output\n"
            "  -z, --zip     compress as zip instead of tgz\n\n"
 
 
-           "Report bugs here https://github.com/ltworf/weborf\n"
-           "or to " PACKAGE_BUGREPORT "\n");
+           "Report bugs here: " PACKAGE_URL "\n"
+           "or to: " PACKAGE_BUGREPORT "\n");
     exit(0);
 }
 
@@ -272,7 +273,7 @@ void print_start_disclaimer(int argc, char *argv[]) {
     char *host;
     if (weborf_conf.ip == NULL) host = "localhost";
     else host = weborf_conf.ip;
-    printf("Weborf %s is free software (GPLv3)\n"
+    printf("Weborf %s is Free software (GPLv3)\n"
            "Serving %s on http://%s:%s\n"
            "For options: %s --help\n",
             VERSION, weborf_conf.basedir, host, weborf_conf.port, argv[0]);

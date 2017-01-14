@@ -21,7 +21,7 @@ weborf_configuration_t weborf_conf = {
     .zip = false,
     .is_inetd = false,
     .virtual_host = false,
-    .exec_script = true,
+    .exec_script = false,
 #ifdef IPV6
     .ipv6 = false,
 #endif
@@ -36,7 +36,7 @@ weborf_configuration_t weborf_conf = {
     .user = NULL,
     .pass = NULL,
     .name = PACKAGE_NAME,
-    .sig = SIGNATURE,
+    .sig = PACKAGE_STRING,
     .favlink = "",
     .css = CSS,
 
@@ -173,7 +173,7 @@ void configuration_load(int argc, char *argv[]) {
         {"auth", required_argument, 0, 'a'},
         {"virtual", required_argument, 0, 'V'},
         {"moo", no_argument, 0, 'M'},
-        {"noexec", no_argument, 0, 'x'},
+        {"exec", no_argument, 0, 'X'},
         {"cgi", required_argument, 0, 'c'},
         {"cache", required_argument, 0, 'C'},
         {"mime", no_argument,0,'m'},
@@ -201,12 +201,11 @@ void configuration_load(int argc, char *argv[]) {
 
         // Reading one option and telling what options are allowed and what
         // needs an argument
+        c = getopt_long(argc, argv, "ktzTMmvhp:i:"
 #ifdef IPV6
-        c = getopt_long(argc, argv, "ktzTMmvhp:i:eI:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
-#else
-        c = getopt_long(argc, argv, "ktzTMmvhp:i:I:u:dxb:a:V:c:C:U:P:l:n:s:f:S:", long_options,
+                "e"
 #endif
-                        &option_index);
+                "I:u:dXb:a:V:c:C:U:P:l:n:s:f:S:", long_options, &option_index);
 
         // If there are no options it continues
         if (c == -1) {
@@ -264,8 +263,8 @@ void configuration_load(int argc, char *argv[]) {
         case 'b':
             configuration_set_basedir(optarg);
             break;
-        case 'x':
-            weborf_conf.exec_script = false;
+        case 'X':
+            weborf_conf.exec_script = true;
             break;
         case 'v':   //Show version and exit
             version();
