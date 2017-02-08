@@ -1,0 +1,31 @@
+Installation
+============
+
+# If Makefile already generated:
+make maintainer-clean
+
+# If Makefile is not yet generated, do:
+: autoreconf -fi
+: ./configure
+: make maintainer-clean
+
+# Edit to change the version:
+: configure.ac
+: README.md
+: CHANGELOG
+
+autoreconf -fi
+
+./configure
+
+make
+
+# Recommended:
+make check
+
+# With elevated permissions if required:
+sudo make install
+
+# In order to uninstall, might require elevated permission:
+: make uninstall
+

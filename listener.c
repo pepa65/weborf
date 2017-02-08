@@ -3,7 +3,6 @@
 
 #include "options.h"
 
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -15,7 +14,6 @@
 #include <syslog.h>
 #include <getopt.h>
 #include <pthread.h>
-
 
 #include "listener.h"
 #include "instance.h"
@@ -121,8 +119,8 @@ int main(int argc, char *argv[]) {
     s = net_create_server_socket();
     net_bind_and_listen(s);
 
-    set_new_uid(weborf_conf.uid);
     set_new_gid(weborf_conf.gid);
+    set_new_uid(weborf_conf.uid);
 
     // init the queue for opened sockets
     if (q_init(&queue, MAXTHREAD + 1) != 0)
@@ -190,24 +188,15 @@ void set_new_uid(uid_t uid) {
     }
 }
 
-void set_new_gid(gid_t gid) {
-    // Changes GID
+void set_new_gid(gid_t gid) { // Changes GID
     if (gid != ROOTGID) {
-        if (setgid(gid) == 0) {
-            // GID changed correctly
+        if (setgid(gid) == 0) { // GID changed correctly
 #ifdef SERVERDBG
             syslog(LOG_INFO, "Changed gid. New one is %d", gid);
 #endif
-        } else {
-            // Not enough permissions I guess...
+        } else { // Not enough permissions I guess...
 #ifdef SERVERDBG
             syslog(LOG_ERR, "Unable to change gid.");
-            switch (errno) {
-            case EINVAL:
-              syslog(LOG_ERR, "EINVAL error: gid %d not valid in user's namespace", gid);
-            case EPERM:
-              syslog(LOG_ERR, "EPREM error: calling proces not CAP_SETGID capable");
-            }
 #endif
             perror("Unable to change gid");
             exit(9);
