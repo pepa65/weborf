@@ -86,6 +86,7 @@ typedef struct {
     char *basedir;
     char* authsock; // Executable that will authenticate
     uid_t uid; //UID to use after bind
+    gid_t gid; //GID to use after bind
 #ifdef SEND_MIMETYPES
     bool send_content_type; // True if we want to send the content type
 #endif

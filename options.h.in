@@ -10,6 +10,7 @@
 
 // System
 #define ROOTUID 0               // UID for superuser
+#define ROOTGID 0               // GID for superuser
 
 // Network
 #define MAXQ 40                 // Queue for connect requests

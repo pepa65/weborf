@@ -3,6 +3,7 @@
 
 #include "options.h"
 
+#include <sys/types.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -33,6 +34,7 @@ weborf_configuration_t weborf_conf = {
     .basedir = "",
 #endif
     .uid = ROOTUID,
+    .gid = ROOTGID,
     .user = NULL,
     .pass = NULL,
     .name = PACKAGE_NAME,
@@ -167,6 +169,7 @@ void configuration_load(int argc, char *argv[]) {
         {"ipv6", no_argument, 0, 'e'},
 #endif
         {"uid", required_argument, 0, 'u'},
+        {"gid", required_argument, 0, 'g'},
         {"daemon", no_argument, 0, 'd'},
         {"basedir", required_argument, 0, 'b'},
         {"index", required_argument, 0, 'I'},
@@ -205,7 +208,7 @@ void configuration_load(int argc, char *argv[]) {
 #ifdef IPV6
                 "e"
 #endif
-                "I:u:dXb:a:V:c:C:U:P:l:n:s:f:S:", long_options, &option_index);
+                "I:u:g:dXb:a:V:c:C:U:P:l:n:s:f:S:", long_options, &option_index);
 
         // If there are no options it continues
         if (c == -1) {
@@ -285,6 +288,9 @@ void configuration_load(int argc, char *argv[]) {
 #endif
         case 'u':
             weborf_conf.uid = strtol(optarg, NULL, 0);
+            break;
+        case 'g':
+            weborf_conf.gid = strtol(optarg, NULL, 0);
             break;
         case 'd':
             daemonize();

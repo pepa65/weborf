@@ -1,3 +1,7 @@
+0.13.4c 2017-02-08 pepa65 <solusos@passchier.net>
+- Added -g/--gid commandline switch on request
+  https://github.com/ltworf/weborf/issues/6
+
 0.13.4b 2017-01-15 pepa65 <solusos@passchier.net>
 - Fix handling of filenames with ?
 - Change option -x/--noexec into -X/--exec and make noexec default
