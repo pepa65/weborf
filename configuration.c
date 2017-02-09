@@ -101,7 +101,7 @@ static void configuration_set_cgi(char *optarg) {
             // Increasing counter, making next item point to char after comma
             weborf_conf.cgi_paths.data[weborf_conf.cgi_paths.len++] = &optarg[i];
             if (weborf_conf.cgi_paths.len == MAXINDEXCOUNT) {
-                perror("Too many cgis, change MAXINDEXCOUNT in options.h to allow more");
+                perror("Too many cgis, change MAXINDEXCOUNT in options.h and recompile to allow more");
                 exit(6);
             }
         }
@@ -110,7 +110,6 @@ static void configuration_set_cgi(char *optarg) {
     for (i=0; i<weborf_conf.cgi_paths.len; i++) {
         weborf_conf.cgi_paths.data_l[i]=strlen(weborf_conf.cgi_paths.data[i]);
     }
-
 }
 
 static void configuration_set_index_list(char *optarg) {
@@ -160,36 +159,36 @@ void configuration_load(int argc, char *argv[]) {
 
     // Declares options
     struct option long_options[] = {
-        {"version", no_argument, 0, 'v'},
-        {"caps", no_argument, 0, 'k'},
-        {"help", no_argument, 0, 'h'},
-        {"port", required_argument, 0, 'p'},
-        {"ip", required_argument, 0, 'i'},
+        {"auth", required_argument, 0, 'a'},
+        {"basedir", required_argument, 0, 'b'},
+        {"cache", required_argument, 0, 'C'},
+        {"cgi", required_argument, 0, 'c'},
+        {"daemon", no_argument, 0, 'd'},
 #ifdef IPV6
         {"ipv6", no_argument, 0, 'e'},
 #endif
-        {"uid", required_argument, 0, 'u'},
+        {"favicon", required_argument, 0, 'f'},
         {"gid", required_argument, 0, 'g'},
-        {"daemon", no_argument, 0, 'd'},
-        {"basedir", required_argument, 0, 'b'},
+        {"help", no_argument, 0, 'h'},
         {"index", required_argument, 0, 'I'},
-        {"auth", required_argument, 0, 'a'},
-        {"virtual", required_argument, 0, 'V'},
+        {"ip", required_argument, 0, 'i'},
+        {"caps", no_argument, 0, 'k'},
+        {"login", required_argument, 0, 'l'},
         {"moo", no_argument, 0, 'M'},
-        {"exec", no_argument, 0, 'X'},
-        {"cgi", required_argument, 0, 'c'},
-        {"cache", required_argument, 0, 'C'},
         {"mime", no_argument,0,'m'},
+        {"name", required_argument, 0, 'n'},
+        {"pass", required_argument, 0, 'P'},
+        {"port", required_argument, 0, 'p'},
+        {"css", required_argument, 0, 'S'},
+        {"sig", required_argument, 0, 's'},
         {"inetd", no_argument,0,'T'},
         {"tar", no_argument,0,'t'},
-        {"zip", no_argument,0,'z'},
         {"user", required_argument, 0, 'U'},
-        {"pass", required_argument, 0, 'P'},
-        {"login", required_argument, 0, 'l'},
-        {"name", required_argument, 0, 'n'},
-        {"sig", required_argument, 0, 's'},
-        {"favicon", required_argument, 0, 'f'},
-        {"css", required_argument, 0, 'S'},
+        {"uid", required_argument, 0, 'u'},
+        {"virtual", required_argument, 0, 'V'},
+        {"version", no_argument, 0, 'v'},
+        {"exec", no_argument, 0, 'X'},
+        {"zip", no_argument,0,'z'},
         {0, 0, 0, 0}
     };
 
@@ -204,11 +203,11 @@ void configuration_load(int argc, char *argv[]) {
 
         // Reading one option and telling what options are allowed and what
         // needs an argument
-        c = getopt_long(argc, argv, "ktzTMmvhp:i:"
+        c = getopt_long(argc, argv, "a:b:C:c:d"
 #ifdef IPV6
                 "e"
 #endif
-                "I:u:g:dXb:a:V:c:C:U:P:l:n:s:f:S:", long_options, &option_index);
+                "f:g:hI:i:kl:Mmn:P:p:S:s:TtU:u:V:vXz", long_options, &option_index);
 
         // If there are no options it continues
         if (c == -1) {
@@ -236,92 +235,92 @@ void configuration_load(int argc, char *argv[]) {
         }
 
         switch (c) {
-        case 'k':
-            print_capabilities();
-            break;
-        case 't':
-            weborf_conf.tar_directory=true;
-            break;
-        case 'z':
-            weborf_conf.zip=true;
-            break;
-        case 'T':
-            weborf_conf.is_inetd=true;
-            break;
-        case 'C':
-            cache_init(optarg);
-            break;
-        case 'm':
-            configuration_enable_sending_mime();
-            break;
-        case 'c':
-            configuration_set_cgi(optarg);
-            break;
-        case 'V':
-            configuration_set_virtualhost(optarg);
-            break;
-        case 'I':
-            configuration_set_index_list(optarg);
+        case 'a':
+            auth_set_socket(optarg);
             break;
         case 'b':
             configuration_set_basedir(optarg);
             break;
-        case 'X':
-            weborf_conf.exec_script = true;
+        case 'C':
+            cache_init(optarg);
             break;
-        case 'v':   //Show version and exit
-            version();
+        case 'c':
+            configuration_set_cgi(optarg);
             break;
-        case 'h':   //Show help and exit
-            help();
-            break;
-        case 'p':
-            weborf_conf.port = optarg;
-            break;
-        case 'i':
-            weborf_conf.ip = optarg;
+        case 'd':
+            daemonize();
             break;
 #ifdef IPV6
         case 'e':
             weborf_conf.ipv6 = true;
             break;
 #endif
-        case 'u':
-            weborf_conf.uid = strtol(optarg, NULL, 0);
+        case 'f':
+            favicon = optarg;
             break;
         case 'g':
             weborf_conf.gid = strtol(optarg, NULL, 0);
             break;
-        case 'd':
-            daemonize();
+        case 'h':   //Show help and exit
+            help();
             break;
-        case 'a':
-            auth_set_socket(optarg);
+        case 'I':
+            configuration_set_index_list(optarg);
             break;
-        case 'M':
-            moo();
+        case 'i':
+            weborf_conf.ip = optarg;
             break;
-        case 'U':
-            weborf_conf.user = optarg;
-            break;
-        case 'P':
-            weborf_conf.pass = optarg;
+        case 'k':
+            print_capabilities();
             break;
         case 'l':
             loginfile = optarg;
             break;
+        case 'M':
+            moo();
+            break;
+        case 'm':
+            configuration_enable_sending_mime();
+            break;
         case 'n':
             weborf_conf.name = optarg;
+            break;
+        case 'P':
+            weborf_conf.pass = optarg;
+            break;
+        case 'p':
+            weborf_conf.port = optarg;
             break;
         case 's':
             weborf_conf.sig = optarg;
             break;
-        case 'f':
-            favicon = optarg;
-            break;
         case 'S':
             weborf_conf.css = malloc(strlen(weborf_conf.css)+strlen(optarg)+1);
             strcat(weborf_conf.css, optarg);
+            break;
+        case 'T':
+            weborf_conf.is_inetd=true;
+            break;
+        case 't':
+            weborf_conf.tar_directory=true;
+            break;
+        case 'U':
+            weborf_conf.user = optarg;
+            break;
+        case 'u':
+            weborf_conf.uid = strtol(optarg, NULL, 0);
+            break;
+        case 'V':
+            configuration_set_virtualhost(optarg);
+            break;
+        case 'v':   //Show version and exit
+            version();
+            break;
+        case 'X':
+            weborf_conf.exec_script = true;
+            break;
+        case 'z':
+            weborf_conf.zip=true;
             break;
         default:
             exit(19);

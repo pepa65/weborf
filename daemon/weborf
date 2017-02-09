@@ -31,8 +31,7 @@
 #                    It also supports php5-cgi.
 ### END INIT INFO
 function clear_cache {
-    CDIR=`cat /etc/weborf.conf | egrep "^cachedir=" | cut -d= -f2`
-    rm -rf $CDIR/*
+    rm -rf -- "$CACHE_DIR/"*
 }
 
 function status {
@@ -46,7 +45,6 @@ function status {
 
 function stopWeborf {
     #Stops all the running weborf servers (the ones started with init)
-
     if ! test -e $PIDFILE
     then
         echo "Weborf is not running or it was not started by init"
@@ -54,7 +52,7 @@ function stopWeborf {
     fi
 
     echo -n "Stopping weborf "    
-    for i in `cat $PIDFILE`
+    for i in $(cat $PIDFILE)
     do
         echo -n ..
         kill $i
@@ -74,81 +72,77 @@ function startWeborf {
     if test -n "$AUTH_BIN"
     then
         echo "Starting authentication server for weborf"
-        nohup $AUTH_BIN > /dev/null 2> /dev/null &
-        echo ${!} >> $PIDFILE # Writes PID so it will be terminated
+        nohup $AUTH_BIN >/dev/null 2>&1 &
+        echo ${!} >>$PIDFILE # Writes PID so it will be terminated
     fi
 
-    virtuals=`cat /etc/weborf.conf | egrep ^virtual`
+    virtuals=$(egrep ^virtual <"$CONF")
     if test -z "$virtuals"
     then
         echo "Starting weborf"
-        nohup $DAEMON $DAEMON_OPTS $CACHE_DIR $AUTH_SOCKET $MIME $CGI $CGI_BIN -p80 -u $USERID -b $BASEDIR -I $INDEXES >/dev/null 2> /dev/null &
-        echo ${!} >> $PIDFILE # Writes PID so weborf can be terminated
+        nohup $DAEMON $DAEMON_OPTS $CACHE_DIR $AUTH $MIME $CGI -p80 -u $USERID -g $GROUPID -b $BASEDIR -I $INDEX >/dev/null 2>&1 &
+        echo ${!} >>$PIDFILE # Writes PID so weborf can be terminated
     else #Virtual hosts
-    
         for i in $virtuals
             do
-                PORT=`echo $i | cut -d# -f2`
-                CMDLINE=`echo $i | cut -d# -f3`
+                PORT=$(cut -d# -f2 <<<"$i")
+                CMDLINE=$(cut -d# -f3 <<<"$i")
                 echo "Starting weborf on port $PORT"
-                nohup $DAEMON $DAEMON_OPTS $CACHE_DIR $AUTH_SOCKET $MIME $CGI $CGI_BIN -p $PORT -u $USERID -b $BASEDIR -I $INDEXES -V "$CMDLINE" > /dev/null 2> /dev/null &
-                echo $! >> $PIDFILE # Writes PID so weborf can be terminated
+                nohup $DAEMON $DAEMON_OPTS $CACHE_DIR $AUTH $MIME $CGI -p $PORT -u $USERID -g $GROUPID -b $BASEDIR -I $INDEX -V "$CMDLINE" >/dev/null 2>&1 &
+                echo $! >>$PIDFILE # Writes PID so weborf can be terminated
             done
     fi
 }
 
-
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/bin/weborf                    # Introduce the server's location here
-NAME=weborf                               # Introduce the short server's name here
+DAEMON=/usr/bin/weborf      # Introduce the server's location here
+NAME=weborf                 # Introduce the short server's name here
 PIDFILE=/var/run/$NAME.pid
+CONF=/etc/weborf.conf
 
 test -x $DAEMON || exit 0
 
 . /lib/lsb/init-functions
 
-# Default options, these can be overriden by the information
-# at /etc/default/$NAME
-DAEMON_OPTS=""          # Additional options given to the server
+# Additional default options, these can be overriden by /etc/default/weborf
+DAEMON_OPTS=""
 
-DIETIME=3               # Time to wait for the server to die, in seconds
-                        # If this value is set too low you might not
-                        # let some servers to die gracefully and
-                        # 'restart' will not work
+# Time to wait for the server to die, in seconds
+# If this value is set too low you might not let some servers to die gracefully
+# and 'restart' will not work
+DIETIME=3
 
-#STARTTIME=2             # Time to wait for the server to start, in seconds
-                        # If this value is set each time the server is
-                        # started (on start or restart) the script will
-                        # stall to try to determine if it is running
-                        # If it is not set and the server takes time
-                        # to setup a pid file the log message might
-                        # be a false positive (says it did not start
-                        # when it actually did)
+# Time to wait for the server to start, in seconds
+# If this value is set each time the server is started (on start or restart)
+# the script will stall to try to determine if it is running
+# If it is not set and the server takes time to setup a pid file the log
+# message might be a false positive (says it did not start when it actually did)
+#STARTTIME=2
 
-LOGFILE=$LOGDIR/$NAME.log  # Server logfile
+# Server logfile
+LOGFILE=$LOGDIR/$NAME.log
 
 # Include defaults if available
-if [ -f /etc/default/$NAME ] ; then
-    . /etc/default/$NAME
-fi
+test -f /etc/default/$NAME && source /etc/default/$NAME
 
-USERNAME=`cat /etc/weborf.conf | egrep "^user=" | cut -d= -f2`
-BASEDIR=`cat /etc/weborf.conf | egrep "^basedir=" | cut -d= -f2`
-USERID=`cat /etc/passwd | fgrep $USERNAME | cut -d: -f3` #Gets the userid
-INDEXES=`cat /etc/weborf.conf | egrep "^indexes=" | cut -d= -f2`
-USE_CGI=`cat /etc/weborf.conf | egrep "^use-cgi=" | cut -d= -f2`
-USE_MIME=`cat /etc/weborf.conf | egrep "^use-mime=" | cut -d= -f2`
-CGI_BIN=`cat /etc/weborf.conf | egrep "^cgi=" | cut -d= -f2`
-CACHE_DIR=`cat /etc/weborf.conf | egrep "^cachedir=" | cut -d= -f2`
+USERNAME=$(egrep "^user=" <"$CONF" |cut -d= -f2)
+GROUPNAME=$(egrep "^group=" <"$CONF" |cut -d= -f2)
+BASEDIR=$(egrep "^basedir=" <"$CONF" |cut -d= -f2)
+USERID=$(fgrep $USERNAME </etc/passwd |cut -d: -f3) # Gets the UID
+GROUPID=$(egrep "^$GROUPNAME" </etc/group |cut -d: -f3) # Gets the GID
+INDEX=$(egrep "^index=" <"$CONF" |cut -d= -f2)
+MIME=$(egrep "^mime=" <"$CONF" |cut -d= -f2)
+CGI=$(egrep "^cgi=" <"$CONF" |cut -d= -f2)
+CACHE_DIR=$(egrep "^cache=" <"$CONF" |cut -d= -f2)
 
 # Authentication
-AUTH_BIN=`cat /etc/weborf.conf | grep "^auth-bin=" | cut -d= -f2`
-AUTH_SOCKET=`cat /etc/weborf.conf | grep "^auth-socket=" | cut -d= -f2`
+AUTH_BIN=$(grep "^auth-bin=" <"$CONF" |cut -d= -f2)
+AUTH=$(grep "^auth=" <"$CONF" |cut -d= -f2)
 
 if test -z "$USERNAME" || test "$USERNAME" = "root"
 then
     logger -s -perror "You are trying to run weborf as root!"
-    exit 0 #LSB requires 0 termination in each case
+    exit 0 # LSB requires 0 termination in each case
 fi
 
 if test -n "$CACHE_DIR"
@@ -161,26 +155,21 @@ then
             
         fi
 
-        chown $USERNAME $CACHE_DIR
+        chown $USERNAME:$GROUPNAME $CACHE_DIR
         CACHE_DIR="-C $CACHE_DIR"
 fi
 
-if test -n "$AUTH_SOCKET"
+if test -n "$AUTH"
 then
-        AUTH_SOCKET="-a $AUTH_SOCKET"
+        AUTH="-a $AUTH"
 fi
 
-if test -n "$CGI_BIN"
+if test -n "$CGI"
 then
-    CGI_BIN=-c $CGI_BIN
+    CGI="-X -c $CGI"
 fi
 
-if test $USE_CGI = "false"
-then
-    CGI="-x"
-fi
-
-if test $USE_MIME = "true"
+if test $MIME = "true"
 then
     MIME="-m"
 fi
@@ -210,3 +199,4 @@ case $1 in
         echo "Usage: $0 {start|stop|restart|force-reload|status|clearcache}";;
 esac
 
+exit 0

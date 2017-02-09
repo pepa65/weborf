@@ -1,3 +1,9 @@
+0.13.5 2017-02-09 pepa65 <solusos@passchier.net>
+- Updated man page
+- Re-sorted commandline options
+- Updated daemon script
+- Cross-checked options/names
+
 0.13.4c 2017-02-08 pepa65 <solusos@passchier.net>
 - Added -g/--gid commandline switch on request
   https://github.com/ltworf/weborf/issues/6

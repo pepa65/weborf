@@ -7,9 +7,11 @@ Weborf
 weborf [options]
 
 .SH DESCRIPTION
-Weborf is a minimal webserver. Also has a limited support for webdav.
+ Weborf is a minimal webserver. Also has a limited support for webdav.
 .BR
-This manual page documents \fBWeborf\fP's command-line parameters.
+
+ This manual page documents \fBWeborf\fP's command-line parameters.
+
 .BR
 \fBWeborf\fP is released under the GNU General Public License version 3.
 
@@ -18,18 +20,12 @@ This manual page documents \fBWeborf\fP's command-line parameters.
 .SS Options:
 
 .TP
+.B \-a, \-\-auth
+Must be followed by a unix socket that the program that will handle authentication will listen on. See the website for more details.
+
+.TP
 .B \-b, \-\-basedir
 Must be followed by a valid directory. Weborf will use this directory as root directory, and won't send files located in parent dirs. But it is still possible for server\-side scripts to read contents located anywhere on the filesystem. Links are also a workaround to exit from the base directory.
-
-.TP
-.B \-a, \-\-auth
-Must be followed by a unix socket listened by a program who will handle authentication. See the website for more details.
-
-.TP
-.B \-c, \-\-cgi
-Must be followed by a list (separated with commas and without spaces) of cgi formats and the binary to execute that format.
-For example: .php,/usr/bin/php-cgi,.sh,/usr/bin/sh-cgi
-In /etc/weborf.conf there is a 'cgi' directive, corresponding to this option. It is used when launching weborf as SystemV daemon.
 
 .TP
 .B \-C, \-\-cache
@@ -38,25 +34,36 @@ To flush the cache (empty that directory) you must send USR2 signal to the proce
 It is advised to flush the cache on reboot (manually or with kill) because some items might be invalid after a reboot but weborf would not know that.
 
 .TP
-.B \-T, \-\-inetd
-Must be specified when using weborf with inetd or xinetd.
-It will be still necessary to specify the used port, to pass the correct value to the CGI scripts.
-The \-u directive will be ignored.
-Daemon \-d mode should not be used.
+.B \-c, \-\-cgi
+Must be followed by a list (separated with commas and without spaces) of cgi formats and the binary to execute that format.
+For example: .php,/usr/bin/php-cgi,.sh,/usr/bin/sh-cgi
+In /etc/weborf.conf there is a 'cgi' directive, corresponding to this option. It is used when launching weborf as SystemV daemon.
 
 .TP
-.B \-t, \-\-tar
-If used, instead of sending directory listing when requesting a directory, weborf will send a tar.gz file with the content of that directory.
-It is used mainly to share files and preserving their permissions.
+.B \-d, \-\-daemon
+Runs weborf as a daemon. It will not terminate when its father process terminates, and it will leave the shell free to receive commands.
 
 .TP
-.B \-X, \-\-exec
-When used, weborf will not send scripts as if they were normal files, but instead will execute them and sending their output.
+.B \-e, \-\-ipv6
+Sets extended IPv6 addressing mode only, no IPv4.
 
 .TP
-.B \-m, \-\-mime
-When used, weborf will send the Content-Type header. It is strongli advised to use it when using weborf as production server because some browsers rely on this field.
-This value will not affect the CGI pages.
+.B \-f, \-\-favicon
+Must be followed by the URL of a favicon to be used for the webpage.
+
+.TP
+.B \-g, \-\-gid
+Must be followed by a valid GID, different from 0. Weborf will use this group for work, but will bind to the network port first.
+
+.TP
+.B \-h, \-\-help
+This will show compiled-in options, help on usage of commandline options and other general information.
+
+.TP
+.B \-I, \-\-index
+Must be followed by a list (separated with commas and without spaces) of index files.
+Weborf will try to load an index file following the order they're listed, and if none is found it will list the content of the directory.
+In /etc/weborf.conf there is an 'index' directive, corresponding to this option. It is used when launching weborf as SystemV daemon.
 
 .TP
 .B \-i, \-\-ip
@@ -69,31 +76,75 @@ By default weborf listens to all IP addresses on the local host.
 Shows some compile-time options in a machine-readable format.
 
 .TP
+.B \-l, \-\-login
+Must be followed by the name of the file with the  login credentials. The first line contains the username, the second line contains the password.
+Overridden by the \-U/\-\-user and \-P/\-\-pass  options if they are given.
+
+.TP
+.B \-m, \-\-mime
+When used, weborf will send the Content-Type header. It is strongly advised to use it when using weborf as production server because some browsers rely on this field.
+This value will not affect the CGI pages.
+
+.TP
+.B \-n, \-\-name
+Must be followed by the name that will be shown as the webpage title.
+
+.TP
+.B \-P, \-\-pass
+Must be followed by the password that will be accepted for authentication.
+The username must also be set, either with the \-n/\-\-name option or the \-l/\-\-login option.
+
+.TP
 .B \-p, \-\-port
 Must be followed by a valid port number (between 1 and 65535), and weborf will listen to incoming connection on the specified port.
-If the port is already used weborf will terminate.
-To use low port numbers (less than 1024) it is necessary to execute the process as root.
-Thus it isn't a good idea to run a webserver with root privileges, so it is possible to specify another user.
+If the port is already bound weborf will terminate.
+In order to use lower port numbers (below 1024) weborf must be executed as root. Because of security considerations, it is recommended to specify and alternative UID and GID with the \-u/\-\-uid and \-g/\-\-gid options that will be used after the port has been bound.
+
+.TP
+.B \-S, \-\-css
+Must be followed by a string of CSS to be used as additional styling for the webpage.
+
+.TP
+.B \-s, \-\-sig
+Must be followed by the footer that is to be used on the webpage.
+
+.TP
+.B \-T, \-\-inetd
+Must be specified when using weborf with inetd or xinetd.
+It will still be necessary to specify the used port, in order to pass the correct value to the CGI scripts.
+The \-u/\-\-uid directive will be ignored.
+Daemon \-d/\-\-daemon mode should not be used.
+
+.TP
+.B \-t, \-\-tar
+If used, instead of sending directory listing when requesting a directory, weborf will send a tar.gz file with the content of that directory.
+It is used mainly to share files and preserving their permissions.
+
+.TP
+.B \-U, \-\-user
+Must be followed by the username that will be used in access authentication.
+
+.TP
+.B \-u, \-\-uid
+Must be followed by a valid UID, different from 0. Weborf will use this user to do his work, but will bind to the network port with the previous user. This mechanism is meant to let users execute it as root and use port 80, and then let it run without root privileges.
 
 .TP
 .B \-V, \-\-virtual
 Enables weborf to use virtualhosts. The basedir supplied with \-b will be the default one (will be used if the requested host is unknown).
 Every virtualhost must be in the form host[:port]=basedir. The port must be specified if the port used is different than 80. And the basedir must end with a /. To separate many virtualhosts, use a comma, and avoid spaces.
-To make weborf use different virtualhosts on different ports, it will be necessary to launch many weborf's processes.
+To make weborf use different virtualhosts on different ports, it will be necessary to launch many weborf processes.
 
 .TP
-.B \-I, \-\-index
-Must be followed by a list (separated with commas and without spaces) of index files.
-Weborf will try to load an index file following the order they're listed, and if none is found it will list the content of the directory.
-In /etc/weborf.conf there is an 'indexes' directive, corresponding to this option. It is used when launching weborf as SystemV daemon.
+.B \-v, \-\-version
+Displays the version of weborf.
 
 .TP
-.B \-u
-Must be followed by a valid uid, different from 0. Weborf will use this user to do his work, but will bind to the network port with the previous user. This mechanism is meant to let users execute it as root and use port 80, and then let it run without root privileges.
+.B \-X, \-\-exec
+When used, weborf will not send scripts as if they were normal files, but instead will execute them and sending their output.
 
 .TP
-.B \-d
-Runs weborf as a daemon. It will not terminate when its father process terminates, and it will leave the shell free to receive commands.
+.B \-z, \-\-zip
+If used instead of \-\-tar, zip archives are used instead for downloading content from the webpage.
 .SS
 
 .SH SCRIPTING
@@ -128,7 +179,7 @@ Authentication socket doesn't exist or is not a unix socket
 .TP
 
 .B 6
-Too much indexes provided as parameter to \-I or to \-c. Increasing MAXINDEXCOUNT in the file options.h and recompiling can solve the problem. But providing a reasanable amount of index file names would be a better solution.
+Too many indexes provided as parameter to \-I or to \-c. Increasing MAXINDEXCOUNT in the file options.h and recompiling can solve the problem. But providing a reasanable amount of index file names would be a better solution.
 .TP
 
 .B 7
@@ -155,10 +206,10 @@ Prints the internal status of the socket's queue and threads on the standard out
 .SS
 
 .SH "SEE ALSO"
-.BR weborf.conf(5), php (1)
+.BR "weborf.conf(5), php (1)"
 
 .SH VERSION
-.BR Weborf 0.13
+.BR "Weborf 0.13.5"
 
 .SH WEB
 .BR http://ltworf.github.io/weborf/

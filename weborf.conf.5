@@ -22,36 +22,32 @@ Lines beginning with # will be ignored and treated as comments.
 .SS
 
 .TP
-.B indexes
-By default weborf searches for index.html. Anyway it is possible to specify a different index file and also many index files. Name of the pages must be separated by a comma and between them there aren't spaces.
+.B index
+By default weborf searches for index.html. It is possible to specify a different index file and also many index files. Name of the pages must be separated by a comma and between them there aren't spaces.
 
 .TP
 .B basedir
 Default base directory used by the webserver. The default means that this will be used also when virtual hosts are enabled, if the requested host is unknown. Of course the user used for the webserver will need to have access to this directory.
 
 .TP
-.B use-cgi
-Can be true or false. If false weborf will handle all files as normal files. Otherwise it will use the CGI protocol to execute some files.
-
-.TP
-.B use-mime
+.B mime
 Can be true or false. If true weborf will send the Content-Type header to the clients. Turning it off will increase speed but might cause problems with some old clients.
 
 .TP
 .B cgi
-List of extensions to consider as dynamic pages and binaries to execute them
+List of extensions to consider as dynamic pages and binaries to execute them. If empty: no cgi.
 
 .TP
 .B auth-bin
-Path of the binary that provides authentication to weborf
+Path of the binary that provides authentication to weborf.
 
 .TP
-.B auth-socket
-Path of the unix socket that weborf will use to connect to the authentication server
+.B auth
+Path of the unix socket that weborf will use to connect to the authentication server.
 
 .TP
-.B cachedir
-Will set the path of the directory used for caching
+.B cache
+Will set the path of the directory used for caching.
 
 .TP
 .B user
@@ -61,17 +57,18 @@ Username of the user that will run the webserver. On debian this is usually www-
 .B virtual
 This directive is used to enable virtualhosts. One line is needed for each port.
 The format is:
-virtual#port#domain1=basedir1,domain2=basedir2
+virtual#<port>#domain1=basedir1,domain2=basedir2
+With: <port> to listen on, followed by virtual hostname/basedir pairs, paired by an equal sign, separated by a comma.
 .SS
 
 .SH EXAMPLE
-Example file can be found in /usr/share/doc/weborf/examples/weborf.conf
+Example file can be found in /usr/local/etc/weborf.conf
 
 .SH "SEE ALSO"
 .BR weborf (1)
 
 .SH VERSION
-.BR Weborf 0.13
+.BR Weborf 0.13.5
 
 .SH WEB
 .BR http://ltworf.github.io/weborf/
