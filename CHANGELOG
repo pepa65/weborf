@@ -1,3 +1,9 @@
+0.13.5a 2017-02-10 pepa65 <solusos@passchier.net>
+- Enabled no default index pages
+- Changed default to using relative paths
+- Added option to show full basedir path
+- Increased max. generated size to 20MB
+
 0.13.5 2017-02-09 pepa65 <solusos@passchier.net>
 - Updated man page
 - Re-sorted commandline options

@@ -17,6 +17,8 @@
 #include "cachedir.h"
 #include "auth.h"
 
+char *get_current_dir_name(void);
+
 weborf_configuration_t weborf_conf = {
     .tar_directory = false,
     .zip = false,
@@ -33,6 +35,7 @@ weborf_configuration_t weborf_conf = {
 #else
     .basedir = "",
 #endif
+    .full_basedir = false,
     .uid = ROOTUID,
     .gid = ROOTGID,
     .user = NULL,
@@ -41,7 +44,6 @@ weborf_configuration_t weborf_conf = {
     .sig = PACKAGE_STRING,
     .favlink = "",
     .css = CSS,
-
 #ifdef SEND_MIMETYPES
     .send_content_type = false,
 #endif
@@ -87,8 +89,13 @@ static void configuration_set_default_CGI() {
 
 // Sets the default index file
 static void configuration_set_default_index() {
+#ifdef INDEX
     weborf_conf.indexes[0] = INDEX;
     weborf_conf.indexes_l = 1;
+#else
+    weborf_conf.indexes[0] = NULL;
+    weborf_conf.indexes_l = 0;
+#endif
 }
 
 static void configuration_set_cgi(char *optarg) {
@@ -114,22 +121,21 @@ static void configuration_set_cgi(char *optarg) {
 
 static void configuration_set_index_list(char *optarg) {
     // Setting list of indexes
+    weborf_conf.indexes_l = 0; // count of indexes
     int i = 0;
-    weborf_conf.indexes_l = 1; // count of indexes
-    weborf_conf.indexes[0] = optarg; // 1st one points to begin of param
-    while (optarg[i++] != 0) { // Reads the string
-
-        if (optarg[i] == ',') {
-            optarg[i++] = 0; // Nulling the comma
-            // Increasing counter, making next item point to char after comma
-            weborf_conf.indexes[weborf_conf.indexes_l++] = &optarg[i];
-            if (weborf_conf.indexes_l == MAXINDEXCOUNT) {
-                perror("Too many indexes, change MAXINDEXCOUNT in options.h to allow more");
-                exit(6);
-            }
+    int l = strlen(optarg);
+    while (i < l) {
+        weborf_conf.indexes[weborf_conf.indexes_l++] = &optarg[i];
+        if (weborf_conf.indexes_l >= MAXINDEXCOUNT) {
+            perror("Too many indexes, change MAXINDEXCOUNT in options.h to allow for more");
+            exit(6);
         }
+        while (optarg[i] != ',' && i<l) i++;
+        optarg[i++] = 0; // Nulling the comma, increasing i to char after comma
     }
-
+#ifdef THREADDBG
+    for (i=0; i<weborf_conf.indexes_l; i++) printf("Index %d: %s\n", i+1, weborf_conf.indexes[i]);
+#endif
 }
 
 static void configuration_set_virtualhost(char *optarg) {
@@ -167,6 +173,7 @@ void configuration_load(int argc, char *argv[]) {
 #ifdef IPV6
         {"ipv6", no_argument, 0, 'e'},
 #endif
+        {"full", no_argument,0,'F'},
         {"favicon", required_argument, 0, 'f'},
         {"gid", required_argument, 0, 'g'},
         {"help", no_argument, 0, 'h'},
@@ -207,7 +214,7 @@ void configuration_load(int argc, char *argv[]) {
 #ifdef IPV6
                 "e"
 #endif
-                "f:g:hI:i:kl:Mmn:P:p:S:s:TtU:u:V:vXz", long_options, &option_index);
+                "Ff:g:hI:i:kl:Mmn:P:p:S:s:TtU:u:V:vXz", long_options, &option_index);
 
         // If there are no options it continues
         if (c == -1) {
@@ -255,6 +262,9 @@ void configuration_load(int argc, char *argv[]) {
             weborf_conf.ipv6 = true;
             break;
 #endif
+        case 'F':
+            weborf_conf.full_basedir = true;
+            break;
         case 'f':
             favicon = optarg;
             break;
@@ -299,10 +309,10 @@ void configuration_load(int argc, char *argv[]) {
             strcat(weborf_conf.css, optarg);
             break;
         case 'T':
-            weborf_conf.is_inetd=true;
+            weborf_conf.is_inetd = true;
             break;
         case 't':
-            weborf_conf.tar_directory=true;
+            weborf_conf.tar_directory = true;
             break;
         case 'U':
             weborf_conf.user = optarg;

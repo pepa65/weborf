@@ -47,13 +47,11 @@ typedef struct {
 
 typedef struct {
     int sock; // File descriptor for the socket
-
 #ifdef IPV6
     char ip_addr[INET6_ADDRSTRLEN]; // ip address in string format
 #else
     char ip_addr[INET_ADDRSTRLEN];
 #endif
-
     bool keep_alive; // True if we are using pipelining
     short int protocol_version; // See defines like HTTP_something
     int method_id; // Index of the http method used (GET, POST)
@@ -87,18 +85,19 @@ typedef struct {
     char* authsock; // Executable that will authenticate
     uid_t uid; //UID to use after bind
     gid_t gid; //GID to use after bind
+    bool full_basedir; // True: show the full path of basedir
 #ifdef SEND_MIMETYPES
-    bool send_content_type; // True if we want to send the content type
+    bool send_content_type; // True: send the content type
 #endif
-    bool is_inetd; //True if it expects to be executed by inetd
+    bool is_inetd; //True: executed by inetd
     array_ll cgi_paths; // Paths to cgi binaries
-    bool virtual_host; // True if must check for virtual hosts
-    bool exec_script; // Enable CGI if false
-    bool tar_directory; // Sends directories compressed into tar-files
-    bool zip; // Compresses with zip instead of tgz
+    bool virtual_host; // True: check for virtual hosts
+    bool exec_script; // True: CGI enabled
+    bool tar_directory; // True: sends directories compressed into tar-files
+    bool zip; // True: compress to zip instead of tgz
     char *ip; // IP addr with default value
 #ifdef IPV6
-    bool ipv6; // Only accepts IPv6 addressing instead of IPv4
+    bool ipv6; // True: only accepts IPv6 addressing, no IPv4
 #endif
     char *port; // port with default value
     char *user; // Username for authentication

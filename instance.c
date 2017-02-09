@@ -1137,8 +1137,13 @@ static int tar_send_dir(connection_t* connection_prop) {
         fclose (stdout); // Closing the stdout
         dup(connection_prop->sock); // Redirects the stdout
         nice(1); // Reducing priority
-        if (weborf_conf.zip) execlp("zip", "zip", "-qr", "-", connection_prop->strfile, NULL);
-        else execlp("tar", "tar", "-chz", connection_prop->strfile, NULL);
+				if (weborf_conf.full_basedir) {
+            if (weborf_conf.zip) execlp("zip", "zip", "-qr", "-", connection_prop->strfile, NULL);
+            else execlp("tar", "tar", "-chz", "-C", "/", (connection_prop->strfile + 1), NULL);
+        } else {
+            if (weborf_conf.zip) execlp("zip", "zip", "-qr", "-", (connection_prop->page + 1), NULL);
+            else execlp("tar", "tar", "-chz", "-C", connection_prop->basedir, (connection_prop->page + 1), NULL);
+        }
     } else if (pid>0) { // Father, does nothing
         int status;
         waitpid(pid,&status,0);

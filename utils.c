@@ -52,7 +52,9 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     }
 
     // Specific header table
-    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td></td><td>Name</td><td>Size</td><td>Last Modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,connection_prop->strfile);
+    char *header = connection_prop->page;
+    if (weborf_conf.full_basedir) header = connection_prop->strfile;
+    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td>Type</td><td>Name</td><td>Size</td><td>Last Modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,header);
     maxsize-=printf_s;
 
     // Cycles trough dir's elements
@@ -66,7 +68,8 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
         char *page = connection_prop->page;
         page++;
         page[strlen(page)-1] = 0;
-			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">%s</a></td><td></td><td></td></tr>",page);
+//			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">%s</a></td><td></td><td></td></tr>",page);
+			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\" class=\"b\"><td><a href=\"%s?/\">dir</a></td><td><a href=\"..\">&nbsp;&nbsp;&nbsp;🡴&nbsp;&nbsp;&nbsp;</a></td><td></td><td></td></tr>",connection_prop->page);
         maxsize-=printf_s;
         pagesize+=printf_s;
         color = "light";
@@ -189,34 +192,41 @@ void print_capabilities() {
 // Prints command line help
 void help() {
 
-    printf("\tStart the weborf webserver\n"
-           "\tUsage: weborf [OPTIONS]\n\n"
+    printf(" %s\n"
+           " Usage: weborf [OPTIONS]\n\n Compiled-in features: "
 #ifdef IPV6
-           "\tCompiled for IPv6\n"
+           "IPv6 "
 #else
-           "\tCompiled for IPv4\n"
+           "IPv4 "
 #endif
 
 #ifdef WEBDAV
-           "\tHas webdav support\n"
+           "Webdav "
 #endif
 
 #ifdef SEND_MIMETYPES
-           "\tHas MIME support\n"
+           "MIME "
 #endif
-
-           "Default port: %s\n"
-           "Default base directory: %s\n"
-           "Signature used: %s\n\n"
-           "CSS stylesheet used: %s\n\n",PORT,
+#ifndef IPV6
+#ifndef WEBDAV
+#ifndef SEND_MIMETYPES
+           "[none]"
+#endif
+#endif
+#endif
+           "\n Default port: %s\n"
+           " Default base directory: %s\n\n"
+           " Default CSS stylesheet used: %s\n\n", PACKAGE_STRING, PORT,
 #ifdef BASEDIR
                                          BASEDIR,
 #else
                                          "$PWD",
 #endif
-                                         PACKAGE_STRING,CSS);
-
-    printf("  -a, --auth    followed by absolute path of authentication program\n"
+                                         CSS);
+    printf("Default index files: ");
+    for (int i=0; i<weborf_conf.indexes_l; i++) printf("%s ", weborf_conf.indexes[i]);
+    if (weborf_conf.indexes_l==0) printf("[none]");
+    printf("\n\n  -a, --auth    followed by absolute path of authentication program\n"
            "  -b, --basedir followed by the path of basedir\n"
            "  -C, --cache   sets the directory to use for cache files\n"
            "  -c, --cgi     list of cgi files+binaries to execute, comma-separated\n"
@@ -224,6 +234,7 @@ void help() {
 #ifdef IPV6
            "  -e, --ipv6    sets extended IPv6 addressing mode only, no IPv4\n"
 #endif
+           "  -F, --full    show the full path of basedir\n"
            "  -f, --favicon followed by the URL of a favicon for the webpage\n"
            "  -g, --gid     followed by valid GID; if started by root,\n"
            "                this will be the group of the process\n"
@@ -250,7 +261,6 @@ void help() {
            "  -X, --exec    instead of sending each file, execute the script and send output\n"
            "  -z, --zip     compress as zip instead of tgz\n\n"
 
-
            "Report bugs here: " PACKAGE_URL "\n"
            "or to: " PACKAGE_BUGREPORT "\n");
     exit(0);
@@ -259,12 +269,12 @@ void help() {
 // Searching for easter eggs within the code isn't fair!
 void moo() {
     printf(" _____________________________\n"
-           "< Weborf has supercow powers! >\n"
+           "{ Weborf has supercow powers! }\n"
            " -----------------------------\n"
-           "        \\   ^__^\n"
-           "         \\  (oo)\\_______\n"
+           "        \\   (__)\n"
+           "         \\ /(oo)\\_______\n"
            "            (__)\\       )\\/\\\n"
-           "                ||----w |\n"
+           "                ||----w\\|\n"
            "                ||     ||\n");
     exit(0);
 }
