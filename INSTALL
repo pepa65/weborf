@@ -1,17 +1,18 @@
 ### Installation
 
-## If Makefile already generated:
-make maintainer-clean
+test -f Makefile || {  # If Makefile is not yet generated, do:
+	autoreconf -fi
+	./configure
+}
 
-## If Makefile is not yet generated, do:
-: autoreconf -fi
-: ./configure
-: make maintainer-clean
+make maintainer-clean
 
 ## Edit to change the version:
 : configure.ac
 : README.md
 : CHANGELOG
+: weborf.1
+: weborf.conf.5
 
 autoreconf -fi
 

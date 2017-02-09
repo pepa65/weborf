@@ -7,7 +7,7 @@ It can do NAT traversal to share files outside of the local network.
 
 Can enable authentication and sending directories as `.tar.gz` files.
 
-## weborf 0.13.4c
+## weborf 0.13.5
 The web server used by qweborf.
 
 Can be used from inetd, supports WebDAV, caching, CGI, virtual hosts.
@@ -25,6 +25,8 @@ make
 
 sudo make install  # Only if wanting to install
 ```
+
+See INSTALL as well.
 
 **To compile qweborf:**
 ```
