@@ -64,8 +64,9 @@ charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>"
 a,a:active{text-decoration:none; color:#116;} a:visited{color:#616;} \
 a:hover,a:focus{text-decoration:underline; color:#611;} \
 body{background-color:#eee;} h2{margin-bottom:12px;} \
-table{margin-left:12px;} th,td{font:80%; text-align:left;} th{font-weight:\
+table{margin-left:12px;} th,td{font:80%; text-align:left; overflow:hidden;} th{font-weight:\
 bold; padding-right:14px; padding-bottom:3px;} td{padding-right:14px;} \
+td a{display:block; margin:-10em; padding:10em;} \
 .s,.s{text-align:right;} .list{background-color:#fff; border-top:1px solid #666; \
 border-bottom:1px solid #666; padding-top:8px; padding-bottom:12px;}\
 .i{font-style:italic;} .b{font-weight:bold;} .darker{background-color:#ccc;} \
