@@ -68,8 +68,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
         char *page = connection_prop->page;
         page++;
         page[strlen(page)-1] = 0;
-//			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td class=\"b\"><a href=\"..\">up</a></td><td><a href=\"..\">%s</a></td><td></td><td></td></tr>",page);
-			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\" class=\"b\"><td><a href=\"%s?/\">dir</a></td><td><a href=\"..\">&nbsp;&nbsp;&nbsp;🡴&nbsp;&nbsp;&nbsp;</a></td><td></td><td></td></tr>",connection_prop->page);
+			  printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\" class=\"b\"><td><a href=\"%s?/\">dir</a></td><td><a href=\"..\"> &nbsp; 🡴 &nbsp; </a></td><td></td><td></td></tr>",connection_prop->page);
         maxsize-=printf_s;
         pagesize+=printf_s;
         color = "light";
