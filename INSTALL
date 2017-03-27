@@ -26,8 +26,16 @@ make
 make check
 
 ## With elevated permissions if required:
-sudo make install
+#sudo make install
+
+## Limited install (binary and man page):
+sudo cp weborf /usr/local/bin/
+sudo mkdir -p /usr/local/share/man/man1
+sudo cp weborf.1 /usr/local/share/man/man1/
 
 ## In order to uninstall, might require elevated permission:
-: make uninstall
+#sudo make uninstall
 
+## Uninstall limited installation:
+sudo rm -- /usr/local/bin/weborf
+sudo rm -- /usr/local/share/man/man1/weborf.1

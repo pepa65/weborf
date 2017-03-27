@@ -37,11 +37,12 @@ static void href_encode(char *name, char *encoded, int len_alloc) {
     size_t len_encoded=0;
     size_t inc;
     char *format;
+    size_t i, j;
 
-    for (size_t i=0; i < len_name; i++) { // Check every character of name
+    for (i=0; i < len_name; i++) { // Check every character of name
         format="%c";
         inc=1;
-        for (size_t j=0; j < len_code; j++) // Encode every character of code
+        for (j=0; j < len_code; j++) // Encode every character of code
             if (name[i]==code[j]) {
                 format="%%%02x";
                 inc=3;
@@ -62,8 +63,9 @@ static void html_encode(char *name, char *encoded, int len_alloc) {
     size_t inc;
     char *code;
     char ni[2]="X";
+    size_t i;
 
-    for (size_t i=0; i < strlen(name); i++) {
+    for (i=0; i < strlen(name); i++) {
         ni[0]=name[i];
         code=ni;
         inc=1;
@@ -257,7 +259,7 @@ void print_capabilities() {
 
 // Prints command line help
 void help() {
-
+    int i;
     printf(" %s\n"
            " Usage: weborf [OPTIONS]\n\n Compiled-in features: "
 #ifdef IPV6
@@ -290,7 +292,7 @@ void help() {
 #endif
                                          CSS);
     printf(" Default index files: ");
-    for (int i=0; i<weborf_conf.indexes_l; i++) printf("%s ", weborf_conf.indexes[i]);
+    for (i=0; i<weborf_conf.indexes_l; i++) printf("%s ", weborf_conf.indexes[i]);
     if (weborf_conf.indexes_l==0) printf("[none]");
     printf("\n\n  -a, --auth    followed by absolute path of authentication program\n"
            "  -b, --basedir followed by the path of basedir\n"
