@@ -47,6 +47,7 @@
 #define DATEBUFFER 50           // Buffer for text date
 #define URI_LEN 256
 #define PATH_LEN 1024
+#define ESCAPED_FNAME_LEN 768  // Size of escaped filename (fname max 256 on linux)
 #define MIMETYPELEN 15          // Size of mimetype string
 
 // Number of index pages allowed to search
@@ -59,31 +60,40 @@
 #define HTMLHEAD "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//\
 EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; \
 charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>"
-#define CSS "body{font-family:Arial,sans-serif;} \
-.foot{font:80%; color:#666; padding-top:4px; margin-bottom:600px;} \
-a,a:active{text-decoration:none; color:#116;} a:visited{color:#616;} \
+#define CSS "body{font-family:Arial,sans-serif; background-color:#eee;} \
+.foot{font-size:80%; color:#666; margin: 4px 0 600px;} \
+a,a:active{text-decoration:none; color:#116;} \
+a:visited{color:#416;} \
 a:hover,a:focus{text-decoration:none;} \
-body{background-color:#eee;} h2{margin-bottom:12px;} \
-table{margin-left:12px;} th,td{font:80%; text-align:left; overflow:hidden;} th{font-weight:\
-bold; padding-right:14px; padding-bottom:3px;} td{padding-right:14px;padding-left:5px;} \
-td a{display:block; margin:-10em; padding:10em;} td a:hover{background-color:#ffd; color:#000;} \
-.s,.s{text-align:right;} .list{background-color:#fff; border-top:1px solid #666; \
-border-bottom:1px solid #666; padding-top:8px; padding-bottom:12px;}\
-.i{font-style:italic;} .b{font-weight:bold;} .darker{background-color:#bbb;} \
-.dark{background-color:#ddd;} .light{background-color:#fff;}"
+h1{color:#f00;} \
+h2{margin-bottom:12px;} \
+h4{color:#333;} \
+.s,.s{text-align:right;} \
+th,td{font-size:80%; text-align:left; overflow:hidden;} \
+th{padding-right:14px; padding-bottom:3px;} \
+td{padding-right:14px; padding-left:5px;} \
+td a{display:block; margin:-10em; padding:10em;} \
+td a:hover{background-color:#ffd;} \
+.list{background-color:#fff; border-top:1px solid #666; border-bottom:1px solid #666; padding:8px 12px 12px 12px;} \
+.i{font-style:italic;} \
+.b{font-weight:bold;} \
+.darker{background-color:#bbb;} \
+.dark{background-color:#ddd;} \
+.light{background-color:#fff;} \
+.date{font:60% monospace;} \
+.size{font:80% monospace;} \
+.root{color:#666;}"
 
-#define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><span class=\"foot\">" PACKAGE_STRING "</span></a></body></html>"
+#define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><p class=\"foot\">" PACKAGE_STRING "</p></a></body></html>"
 
 // SCRIPTS
 #define SCRPT_TIMEOUT 30        // Timeout for the scripts, in seconds
 #define HIDE_CGI_ERRORS         // Hides all the errors
 
-//#define CGI_PHP "@cgibindir@/php5"
+//#define CGI_PHP "@cgibindir@/php"
 //#define CGI_PY "@cgibindir@/weborf_py_wrapper"
-//#define CGI_PHP "/usr/lib/cgi-bin/php5"
-//#define CGI_PY "/usr/lib/cgi-bin/weborf_py_wrapper"
-#define CGI_PHP "/usr/bin/php-cgi"
-#define CGI_PY "/usr/local/bin/weborf_py_wrapper"
+#define CGI_PHP "/usr/lib/cgi-bin/php"
+#define CGI_PY "/usr/local/lib/cgi-bin/weborf_py_wrapper"
 
 // COMPRESSING PAGES
 //#define __COMPRESSION         // Comment to disable support for compressing pages

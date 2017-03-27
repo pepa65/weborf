@@ -7,7 +7,7 @@ It can do NAT traversal to share files outside of the local network.
 
 Can enable authentication and sending directories as `.tar.gz` files.
 
-## weborf 0.13.5a
+## weborf 0.13.5b
 The web server used by qweborf.
 
 Can be used from inetd, supports WebDAV, caching, CGI, virtual hosts.

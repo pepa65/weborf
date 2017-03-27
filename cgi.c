@@ -12,8 +12,8 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
 
-#include "mystring.h"
 #include "cgi.h"
 #include "types.h"
 #include "instance.h"
@@ -21,44 +21,53 @@
 extern char ** environ; // To reset environ vars
 extern weborf_configuration_t weborf_conf;
 
+// This function converts a string to upper case
+void strToUpper(char *str) {
+    int i=-1;
+    while (str[++i]) {
+        str[i]=toupper(str[i]);
+    }
+}
+
 // This function will set enviromental variables mapping the HTTP request.
 // Each variable will be prefixed with "HTTP_" and will be converted to
 // upper case.
 static inline void cgi_set_http_env_vars(char *http_param) {
     //Sets Enviroment vars
-    if (http_param == NULL)
+    if (http_param==NULL)
         return;
 
     char *lasts;
     char *param;
     int i;
+    int j;
     int p_len;
 
     // Removes the 1st part with the protocol
-    param = strtok_r(http_param, "\r\n", &lasts);
+    param=strtok_r(http_param, "\r\n", &lasts);
     setenv("SERVER_PROTOCOL", param, true);
 
     char hparam[200];
-    hparam[0] = 'H';
-    hparam[1] = 'T';
-    hparam[2] = 'T';
-    hparam[3] = 'P';
-    hparam[4] = '_';
+    hparam[0]='H';
+    hparam[1]='T';
+    hparam[2]='T';
+    hparam[3]='P';
+    hparam[4]='_';
 
     // Cycles parameters
-    while ((param = strtok_r(NULL, "\r\n", &lasts)) != NULL) {
+    while ((param=strtok_r(NULL, "\r\n", &lasts))!=NULL) {
 
-        p_len = lasts-param-1;
-        char *value = NULL;
+        p_len=lasts-param-1;
+        char *value=NULL;
 
         // Parses the parameter to split name from value
-        for (i = 0; i < p_len; i++) {
-            if (param[i] == ':' && param[i + 1] == ' ') {
-                param[i] = '\0';
-                value = &param[i + 2];
+        for (i=0; i < p_len; i++) {
+            if (param[i]==':' && param[i + 1]==' ') {
+                param[i]='\0';
+                value=&param[i + 2];
 
                 strToUpper(param); // Converts to upper case
-                strReplace(param, "-", '_');
+                for (j=0; j<strlen(param); j++) if (param[j]=='-') param[j]='_';
                 memccpy(hparam+5,param,'\0',195);
                 setenv(hparam, value, true);
 
@@ -73,23 +82,18 @@ static inline void cgi_set_http_env_vars(char *http_param) {
 // of the SERVER IP ADDRESS which is being used by the socket
 static inline void cgi_set_SERVER_ADDR_PORT(int sock) {
 
+#ifdef IPV6
     char loc_addr[INET6_ADDRSTRLEN];
-#ifdef IPV6
-    if (weborf_conf.ipv6) {
-        struct sockaddr_in6 addr;
-        socklen_t addr_l=sizeof(struct sockaddr_in6);
-        getsockname(sock, (struct sockaddr *)&addr, &addr_l);
-        inet_ntop(AF_INET6, &addr.sin6_addr,(char*)&loc_addr, INET6_ADDRSTRLEN);
-    }
-    else {
-#endif
-        ///char loc_addr[INET_ADDRSTRLEN];
-        struct sockaddr_in addr;
-        int addr_l=sizeof(struct sockaddr_in);
-        getsockname(sock, (struct sockaddr *)&addr,(socklen_t *) &addr_l);
-        inet_ntop(AF_INET, &addr.sin_addr,(char*)&loc_addr, INET_ADDRSTRLEN);
-#ifdef IPV6
-    }
+    struct sockaddr_in6 addr;
+    socklen_t addr_l=sizeof(struct sockaddr_in6);
+    getsockname(sock, (struct sockaddr *)&addr, &addr_l);
+    inet_ntop(AF_INET6, &addr.sin6_addr,(char*)&loc_addr, INET6_ADDRSTRLEN);
+#else
+    char loc_addr[INET_ADDRSTRLEN];
+    struct sockaddr_in addr;
+    int addr_l=sizeof(struct sockaddr_in);
+    getsockname(sock, (struct sockaddr *)&addr,(socklen_t *) &addr_l);
+    inet_ntop(AF_INET, &addr.sin_addr,(char*)&loc_addr, INET_ADDRSTRLEN);
 #endif
 
     setenv("SERVER_ADDR",(char*)&loc_addr,true);
@@ -161,7 +165,7 @@ static inline void cgi_child_chdir(connection_t *connection_prop) {
     // chdir to the directory
     char* last_slash=rindex(connection_prop->strfile,'/');
     last_slash[0]=0;
-    chdir(connection_prop->strfile);
+    int retval=chdir(connection_prop->strfile);
 }
 
 // Closes unused ends of pipes, dups them, sets the correct enviromental
@@ -171,7 +175,7 @@ static inline void cgi_execute_child(connection_t* connection_prop,string_t* pos
     close (wpipe[0]); // Closes unused end of the pipe
 
     close (STDOUT);
-    dup(wpipe[1]); // Redirects the stdout
+    int retval=dup(wpipe[1]); // Redirects the stdout
 
 #ifdef HIDE_CGI_ERRORS
     close (STDERR);
@@ -179,7 +183,7 @@ static inline void cgi_execute_child(connection_t* connection_prop,string_t* pos
     // Redirecting standard input only if there is POST data
     if (post_param->data!=NULL) { // Send post data to script's stdin
         close(STDIN);
-        dup(ipipe[0]);
+        retval=dup(ipipe[0]);
     }
 
     environ=NULL; // Clear env vars
@@ -229,7 +233,7 @@ static inline int cgi_waitfor_child(connection_t* connection_prop,string_t* post
     if (post_param->data!=NULL) {
         // Pipe created, used only if there is data to send to the script
         //Send post data to script's stdin
-        write(ipipe[1],post_param->data,post_param->len);
+        ssize_t retval = write(ipipe[1],post_param->data,post_param->len);
         close (ipipe[0]); // Closes unused end of the pipe
         close (ipipe[1]); // Closes the pipe
     }
@@ -281,14 +285,14 @@ static inline int cgi_waitfor_child(connection_t* connection_prop,string_t* post
         send_http_header(status,reads,header_buf,true,-1,connection_prop);
 
         if (reads!=0) { // Sends the page if there is something to send
-            write (sock,scrpt_buf,reads);
+            ssize_t retval = write(sock,scrpt_buf,reads);
         }
 
         if (reads==-1) { // Reading until the pipe is empty, if it wasn't fully read before
             e_reads=MAXSCRIPTOUT+HEADBUF;
             while (e_reads==MAXSCRIPTOUT+HEADBUF) {
                 e_reads=read(wpipe[0],header_buf,MAXSCRIPTOUT+HEADBUF);
-                write (sock,header_buf,e_reads);
+                ssize_t retval = write(sock,header_buf,e_reads);
             }
         }
 
@@ -321,14 +325,15 @@ int exec_page(char * executor,string_t* post_param,char* real_basedir,connection
     int wpid; // Child's pid
     int wpipe[2]; // Pipe's file descriptor
     int ipipe[2]; // Pipe's file descriptor, to pass POST on script's stdin
+    int retval;
 
     // Pipe created and used only if there is POST data to send to the script
     if (post_param->data!=NULL) {
-        pipe(ipipe); // Pipe to comunicate with the child
+        retval=pipe(ipipe); // Pipe to comunicate with the child
     }
 
     // Pipe to get the output of the child
-    pipe(wpipe); // Pipe to comunicate with the child
+    retval=pipe(wpipe); // Pipe to comunicate with the child
 
     if ((wpid=fork())<0) { // Error, returns a no memory error
 #ifdef SENDINGDBG

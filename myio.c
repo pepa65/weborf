@@ -49,7 +49,7 @@ int fd_copy(int from, int to, off_t count) {
 
 // Returns true if the specified file exists
 bool file_exists(char *file) {
-    int fp = open(file, O_RDONLY);
+    int fp=open(file, O_RDONLY);
     if (fp >= 0) { // exists
         close(fp);
         return true;
@@ -67,12 +67,12 @@ int dir_remove(char * dir) {
     if (unlink(dir)==0)
         return 0;
 
-    DIR *dp = opendir(dir); // Open dir
+    DIR *dp=opendir(dir); // Open dir
     struct dirent entry;
     struct dirent *result;
     int return_code;
 
-    if (dp == NULL) {
+    if (dp==NULL) {
         return 1;
     }
 
@@ -127,13 +127,13 @@ int file_copy(char* source, char* dest) {
     }
 
     if ((fd_from=open(source,O_RDONLY | O_LARGEFILE))<0) {
-        retval = ERR_FILENOTFOUND;
+        retval=ERR_FILENOTFOUND;
         goto escape;
     }
 
     buf=malloc(FILEBUF); // Buffer to read from file
     if (buf==NULL) {
-        retval= ERR_NOMEM;
+        retval=ERR_NOMEM;
         goto escape;
     }
 
@@ -141,7 +141,7 @@ int file_copy(char* source, char* dest) {
         write_=write(fd_to,buf,read_);
 
         if (write_!=read_) {
-            retval= ERR_BRKPIPE;
+            retval=ERR_BRKPIPE;
             break;
         }
     }
@@ -187,12 +187,12 @@ int dir_move_copy (char* source, char* dest,int method) {
         return ERR_FORBIDDEN;
     }
 
-    DIR *dp = opendir(source); // Open dir
+    DIR *dp=opendir(source); // Open dir
     struct dirent entry;
     struct dirent *result;
     int return_code;
 
-    if (dp == NULL) {
+    if (dp==NULL) {
         return ERR_FILENOTFOUND;
     }
 

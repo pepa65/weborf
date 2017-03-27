@@ -19,7 +19,6 @@
 #include "instance.h"
 #include "queue.h"
 #include "utils.h"
-#include "mystring.h"
 #include "types.h"
 #include "cachedir.h"
 #include "configuration.h"
@@ -43,7 +42,7 @@ static void init_thread_attr() {
 
 // Starts threads. Specify how many threads start.
 void init_threads(unsigned int count) {
-    static long int id = 1;
+    static long int id=1;
     ///t_free=MAXTHREAD;
     int effective=0,i;
 
@@ -54,7 +53,7 @@ void init_threads(unsigned int count) {
     if (thread_info.count + count < MAXTHREAD) {
 
         // Start
-        for (i = 1; i <= count; i++)
+        for (i=1; i <= count; i++)
             if (pthread_create(&t_id, &t_attr, instance, (void *) (id++))==0) effective++;
 
         thread_info.count+=effective; // increases the count of started threads
@@ -116,14 +115,14 @@ int main(int argc, char *argv[]) {
 
     print_start_disclaimer(argc,argv);
 
-    s = net_create_server_socket();
+    s=net_create_server_socket();
     net_bind_and_listen(s);
 
     set_new_gid(weborf_conf.gid);
     set_new_uid(weborf_conf.uid);
 
     // init the queue for opened sockets
-    if (q_init(&queue, MAXTHREAD + 1) != 0)
+    if (q_init(&queue, MAXTHREAD + 1)!=0)
         exit(NOMEM);
 
     // Starts the 1st group of threads
@@ -134,7 +133,7 @@ int main(int argc, char *argv[]) {
 
     // Infinite cycle, accept connections
     while (1) {
-        s1 = accept(s, NULL,NULL);
+        s1=accept(s, NULL,NULL);
 
         if (s1 >= 0 && q_put(&queue, s1)!=0) { // Adds s1 to the queue
 #ifdef REQUESTDBG
@@ -171,8 +170,8 @@ void quit() {
 
 void set_new_uid(uid_t uid) {
     // Changes UID
-    if (uid != ROOTUID) {
-        if (setuid(uid) == 0) {
+    if (uid!=ROOTUID) {
+        if (setuid(uid)==0) {
             // UID changed correctly
 #ifdef SERVERDBG
             syslog(LOG_INFO, "Changed uid. New one is %d", uid);
@@ -189,8 +188,8 @@ void set_new_uid(uid_t uid) {
 }
 
 void set_new_gid(gid_t gid) { // Changes GID
-    if (gid != ROOTGID) {
-        if (setgid(gid) == 0) { // GID changed correctly
+    if (gid!=ROOTGID) {
+        if (setgid(gid)==0) { // GID changed correctly
 #ifdef SERVERDBG
             syslog(LOG_INFO, "Changed gid. New one is %d", gid);
 #endif

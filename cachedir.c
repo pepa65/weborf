@@ -18,7 +18,6 @@
 #include "types.h"
 #include "instance.h"
 
-
 char *cachedir=NULL;
 
 // Generates the filename for the cached entity and stores it in the buffer
@@ -102,7 +101,7 @@ int cache_get_item_fd_wr(unsigned int uprefix,connection_t *connection_prop) {
     // Get the filename
     cached_filename(uprefix,connection_prop,fname);
 
-    int fd = open(fname,O_RDWR| O_CREAT,S_IRUSR|S_IWUSR);
+    int fd=open(fname,O_RDWR| O_CREAT,S_IRUSR|S_IWUSR);
 
     // Acquire the exclusive lock in a non-blocking way
     if (flock(fd,LOCK_EX|LOCK_NB)==0) {
@@ -140,7 +139,7 @@ void cache_store_item(unsigned int uprefix,connection_t* connection_prop, char *
         return;
     }
 
-    write(fd,content,content_len);
+    ssize_t retval = write(fd,content,content_len);
     close(fd);
     return;
 }
@@ -156,7 +155,7 @@ void cache_init(char* dir) {
         // Check if it exists
         struct stat stat_buf;
         if (stat(dir, &stat_buf)!=0) {
-            write(2,"Unable to stat cache directory\n",31);
+            ssize_t retval = write(2,"Unable to stat cache directory\n",31);
 #ifdef SERVERDBG
             syslog(LOG_ERR,"Unable to stat cache directory");
 #endif
@@ -166,7 +165,7 @@ void cache_init(char* dir) {
 
         // Check it is a directory
         if (!S_ISDIR(stat_buf.st_mode)) {
-            write(2,"--cache parameter must be a directory\n",38);
+            ssize_t retval = write(2,"--cache parameter must be a directory\n",38);
 
 #ifdef SERVERDBG
             syslog(LOG_ERR,"--cache parameter must be a directory");
@@ -177,7 +176,7 @@ void cache_init(char* dir) {
 
     // check we have permissions
     if (access(dir,W_OK|R_OK)!=0) {
-        write(2,"no read or write permissions on cache dir\n",42);
+        ssize_t retval = write(2,"no read or write permissions on cache dir\n",42);
 
 #ifdef SERVERDBG
         syslog(LOG_ERR,"no read or write permissions on cache dir");
@@ -195,13 +194,13 @@ int cache_clear() {
     if (!cachedir) return -1;
 
     // Empty directory
-    DIR *dp = opendir(cachedir); // Open dir
+    DIR *dp=opendir(cachedir); // Open dir
     struct dirent entry;
     struct dirent *result;
     int return_code;
     int retval=0;
 
-    if (dp == NULL) {
+    if (dp==NULL) {
         return 1;
     }
 

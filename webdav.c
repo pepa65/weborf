@@ -23,7 +23,6 @@
 #include "instance.h"
 #include "mime.h"
 #include "myio.h"
-#include "mystring.h"
 #include "utils.h"
 #include "cachedir.h"
 #include "types.h"
@@ -185,7 +184,7 @@ static inline int printprops(connection_t *connection_prop,u_dav_details props,c
     escape_uri(filename,escaped_filename,URI_LEN);
     escape_uri(connection_prop->page,escaped_page,URI_LEN);
 
-    write(sock,"<D:response>\n",13);
+    ssize_t retval = write(sock,"<D:response>\n",13);
 
     {
         // Sends href of the resource
@@ -195,10 +194,10 @@ static inline int printprops(connection_t *connection_prop,u_dav_details props,c
             p_len=snprintf(buffer,URI_LEN,"<D:href>%s%s</D:href>",escaped_page,escaped_filename);
         }
 
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
     }
 
-    write(sock,"<D:propstat><D:prop>",20);
+    retval = write(sock,"<D:propstat><D:prop>",20);
 
     // Writing properties
     char prop_buffer[URI_LEN];
@@ -206,14 +205,14 @@ static inline int printprops(connection_t *connection_prop,u_dav_details props,c
     if (props.dav_details.getetag) {
         snprintf(prop_buffer,URI_LEN,"%d",(unsigned int)stat_s.st_mtime);
         p_len=snprintf(buffer,URI_LEN,"<D:getetag>%s</D:getetag>\n",prop_buffer);
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
 
     }
 
     if (props.dav_details.getcontentlength) {
         snprintf(prop_buffer,URI_LEN,"%lld",(long long)stat_s.st_size);
         p_len=snprintf(buffer,URI_LEN,"<D:getcontentlength>%s</D:getcontentlength>\n",prop_buffer);
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
     }
 
     if (props.dav_details.resourcetype) { // Directory or normal file
@@ -225,7 +224,7 @@ static inline int printprops(connection_t *connection_prop,u_dav_details props,c
         }
 
         p_len=snprintf(buffer,URI_LEN,"<D:resourcetype>%s</D:resourcetype>\n",prop_buffer);
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
     }
 
     if (props.dav_details.getlastmodified) { // Sends Date
@@ -233,21 +232,21 @@ static inline int printprops(connection_t *connection_prop,u_dav_details props,c
         localtime_r(&stat_s.st_mtime,&ts);
         strftime(prop_buffer,URI_LEN, "%a, %d %b %Y %H:%M:%S", &ts);
         p_len=snprintf(buffer,URI_LEN,"<D:getlastmodified>%s</D:getlastmodified>\n",prop_buffer);
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
     }
 
 #ifdef SEND_MIMETYPES
     if(props.dav_details.getcontenttype) { // Sends MIME type
-        thread_prop_t *thread_prop = pthread_getspecific(thread_key);
+        thread_prop_t *thread_prop=pthread_getspecific(thread_key);
 
         const char* t=mime_get_fd(thread_prop->mime_token,file_fd,&stat_s);
         p_len=snprintf(buffer,URI_LEN,"<D:getcontenttype>%s</D:getcontenttype>\n",t);
-        write (sock,buffer,p_len);
+        retval = write(sock,buffer,p_len);
     }
 #endif
 
-    write(sock,"</D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat>",58);
-    write(sock,"</D:response>",13);
+    retval = write(sock,"</D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat>",58);
+    retval = write(sock,"</D:response>",13);
     close(file_fd);
     return 0;
 }
@@ -261,7 +260,7 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
     }
 
     int sock=connection_prop->sock;
-    u_dav_details props= {0};
+    u_dav_details props={0};
     props.dav_details.type=1; // I need to avoid the struct to be fully 0 in each case
     int swap_fd=-1; // swap file descriptor
     const bool has_cache=cache_is_enabled();
@@ -274,7 +273,9 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
             return ERR_FILENOTFOUND;
         }
 
-        if (S_ISDIR(connection_prop->strfile_stat.st_mode) && !endsWith(connection_prop->strfile,"/",connection_prop->strfile_len,1)) {//Putting the ending / and redirect
+        if (S_ISDIR(connection_prop->strfile_stat.st_mode)
+                && connection_prop->strfile[connection_prop->strfile_len]!='/') {
+            // Append the ending / and redirect
             char head[URI_LEN+12]; // 12 is the size for the location header
             snprintf(head,URI_LEN+12,"Location: %s/\r\n",connection_prop->page);
             send_http_header(301,0,head,true,-1,connection_prop);
@@ -282,9 +283,9 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
         }
     } // End redirection
 
-    int retval=get_props(connection_prop,post_param,&props); // splitting props
-    if (retval!=0) {
-        return retval;
+    int retval2=get_props(connection_prop,post_param,&props); // splitting props
+    if (retval2!=0) {
+        return retval2;
     }
 
     // Sets keep alive to false (have no clue about how big is the generated
@@ -318,20 +319,20 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
     }
 
     // Sends header of xml response
-    write(sock,"<?xml version=\"1.0\" encoding=\"utf-8\" ?>",39);
-    write(sock,"<D:multistatus xmlns:D=\"DAV:\">",30);
+    ssize_t retval = write(sock,"<?xml version=\"1.0\" encoding=\"utf-8\" ?>",39);
+    retval = write(sock,"<D:multistatus xmlns:D=\"DAV:\">",30);
 
     // sends props about the requested file
     printprops(connection_prop,props,connection_prop->strfile,connection_prop->page,true);
 
     if (props.dav_details.deep) { // Send children files
-        DIR *dp = opendir(connection_prop->strfile); // Open dir
+        DIR *dp=opendir(connection_prop->strfile); // Open dir
         char file[URI_LEN];
         struct dirent entry;
         struct dirent *result;
         int return_code;
 
-        if (dp == NULL) { // Error, unable to send because header was already sent
+        if (dp==NULL) { // Error, unable to send because header was already sent
             close(sock);
             return 0;
         }
@@ -356,7 +357,7 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
     }
 
     // ends multistatus
-    write(sock,"</D:multistatus>",16);
+    retval = write(sock,"</D:multistatus>",16);
 
     // If we were able to get a file descriptor for the cache file, and cache
     // is enabled, at this point the XMP has been saved into the cache but not
@@ -430,7 +431,7 @@ int copy_move(connection_t* connection_prop) {
     bool dest_b=get_param_value(connection_prop->http_param,"Destination",dest,PATH_LEN,strlen("Destination"));
     bool overwrite_b=get_param_value(connection_prop->http_param,"Overwrite",overwrite,PATH_LEN,strlen("Overwrite"));
 
-    if (host_b && dest_b == false) { // Some important header is missing
+    if (host_b && dest_b==false) { // Some important header is missing
         retval=ERR_NOTHTTP;
         goto escape;
     }

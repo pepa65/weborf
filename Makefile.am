@@ -14,7 +14,6 @@ weborf_SOURCES = \
     mime.c \
     myio.c \
     mynet.c \
-    mystring.c \
     queue.c \
     utils.c \
     webdav.c
@@ -34,7 +33,6 @@ EXTRA_DIST = \
     embedded_auth.h \
     listener.h \
     myio.h \
-    mystring.h \
     queue.h \
     utils.h \
     examples \

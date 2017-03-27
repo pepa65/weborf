@@ -23,9 +23,9 @@ extern weborf_configuration_t weborf_conf;
 
 // Checks that the authentication socket exists and is a unix socket
 void auth_set_socket(char *u_socket) {
-    if (weborf_conf.authsock != "") {
+    if (weborf_conf.authsock!="") {
         struct stat sb;
-        if (stat(u_socket, &sb) == -1) {
+        if (stat(u_socket, &sb)==-1) {
             perror("Existing unix socket expected");
 #ifdef SERVERDBG
             syslog(LOG_ERR, "%s doesn't exist", u_socket);
@@ -33,15 +33,15 @@ void auth_set_socket(char *u_socket) {
             exit(5);
         }
 
-        if ((sb.st_mode & S_IFMT) != S_IFSOCK) {
+        if ((sb.st_mode & S_IFMT)!=S_IFSOCK) {
 #ifdef SERVERDBG
             syslog(LOG_ERR, "%s is not a socket", u_socket);
 #endif
-            write(2,"Socket expected\n",16);
+            ssize_t retval = write(2,"Socket expected\n",16);
             exit(5);
         }
 
-    weborf_conf.authsock = u_socket;
+    weborf_conf.authsock=u_socket;
     }
 }
 
@@ -81,7 +81,7 @@ int auth_check_request(connection_t *connection_prop) {
 
     int result=-1;
 
-    if (weborf_conf.authsock == "")
+    if (weborf_conf.authsock=="")
         result=c_auth(connection_prop->page,
                       connection_prop->ip_addr,
                       connection_prop->method,
@@ -93,10 +93,10 @@ int auth_check_request(connection_t *connection_prop) {
         struct sockaddr_un remote;
         s=socket(AF_UNIX,SOCK_STREAM,0);
 
-        remote.sun_family = AF_UNIX;
+        remote.sun_family=AF_UNIX;
         strcpy(remote.sun_path, weborf_conf.authsock);
-        len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-        if (connect(s, (struct sockaddr *)&remote, len) == -1) {//Unable to connect
+        len=strlen(remote.sun_path) + sizeof(remote.sun_family);
+        if (connect(s, (struct sockaddr *)&remote, len)==-1) {//Unable to connect
             return -1;
         }
         char* auth_str=malloc(HEADBUF+PWDLIMIT*2);

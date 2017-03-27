@@ -33,13 +33,11 @@ typedef struct {
     int num, size; // Filled positions in the queue, and its maximum size
     int head, tail; // pointers to head and tail of the round queue
     int *data; // Socket with client
-
 #ifdef IPV6
     struct sockaddr_in6 *addr; // Local and remote address
 #else
     struct sockaddr_in *addr;
 #endif
-
     pthread_mutex_t mutex; // mutex to modify the queue
     pthread_cond_t for_space, for_data;
     int n_wait_sp, n_wait_dt;
@@ -86,6 +84,7 @@ typedef struct {
     uid_t uid; //UID to use after bind
     gid_t gid; //GID to use after bind
     bool full_basedir; // True: show the full path of basedir
+    bool hide; // True: hide the 'hidden' dot-files
 #ifdef SEND_MIMETYPES
     bool send_content_type; // True: send the content type
 #endif
@@ -96,9 +95,6 @@ typedef struct {
     bool tar_directory; // True: sends directories compressed into tar-files
     bool zip; // True: compress to zip instead of tgz
     char *ip; // IP addr with default value
-#ifdef IPV6
-    bool ipv6; // True: only accepts IPv6 addressing, no IPv4
-#endif
     char *port; // port with default value
     char *user; // Username for authentication
     char *pass; // Password for authentication

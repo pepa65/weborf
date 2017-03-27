@@ -1,3 +1,12 @@
+0.13.5b 2017-03-27 pepa65 <solusos@passchier.net>
+- Fixed unescaped filename not found bug
+- Eliminated mystring.c/h
+- Added -H/--hide commandline option to not show hidden dotfiles
+- Tweaks to CSS and presentation: number of files in dir, last modified
+- Removed old debian patches
+- Remove -e/--ipv6 option (now needs recompile if kernel doesn't support IPV6)
+- General cleanup, compile errorfree
+
 0.13.5a 2017-02-10 pepa65 <solusos@passchier.net>
 - Enabled no default index pages
 - Changed default to using relative paths

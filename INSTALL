@@ -1,4 +1,4 @@
-### Installation
+### Installation 0.13.5b
 
 test -f Makefile || {  # If Makefile is not yet generated, do:
 	autoreconf -fi
@@ -13,6 +13,8 @@ make maintainer-clean
 : CHANGELOG
 : weborf.1
 : weborf.conf.5
+: qweborf.setup.py
+: qweborf/qweborf.py
 
 autoreconf -fi
 
