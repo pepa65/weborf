@@ -1,41 +1,64 @@
-### Installation 0.13.5b
+#### Installation 0.13.5c
+## Install script 
 
-test -f Makefile || {  # If Makefile is not yet generated, do:
-	autoreconf -fi
-	./configure
+Usage(){ cat <<-EOS
+	 USAGE: . INSTALL [-i|-u|-h]
+	  (no option):  make and optionally install
+	           -i:  install
+	           -u:  uninstall
+	           -h:  this help text
+	EOS
 }
 
-make maintainer-clean
+Change_version(){ cat <<-EOS
+	 Edit these files when changing the version:
+	   configure.ac
+	   README.md
+	   CHANGELOG
+	   INSTALL
+	   weborf.1
+	   weborf.conf.5
+	   qweborf.setup.py
+	   qweborf/qweborf.py
 
-## Edit to change the version:
-: configure.ac
-: README.md
-: CHANGELOG
-: weborf.1
-: weborf.conf.5
-: qweborf.setup.py
-: qweborf/qweborf.py
+	EOS
+	read -p " Press Ctrl-C to edit these files first, or Enter to continue build "
+}
 
-autoreconf -fi
+[[ -z $1 || $1 = '-i' || $1 = '-u' ]] || { Usage; return;}
 
-./configure
+## Build:
+[[ -z $1 ]] && {
+	test -f Makefile || {  # If Makefile is not yet generated, do:
+		autoreconf -fi
+		./configure
+	}
 
-make
+	make maintainer-clean
+	Change_version
+	autoreconf -fi
+	./configure
+	make
 
-## Recommended:
-make check
+	## Recommended:
+	make check
 
-## With elevated permissions if required:
-#sudo make install
+	echo
+	read -p " Press Ctrl-C to NOT install, or Enter to continue installing "
+}
 
-## Limited install (binary and man page):
-sudo cp weborf /usr/local/bin/
-sudo mkdir -p /usr/local/share/man/man1
-sudo cp weborf.1 /usr/local/share/man/man1/
+### Full install/uninstall (qweborf, weborf.conf, init.d)
+# sudo make install
+# sudo make uninstall
 
-## In order to uninstall, might require elevated permission:
-#sudo make uninstall
 
-## Uninstall limited installation:
-sudo rm -- /usr/local/bin/weborf
-sudo rm -- /usr/local/share/man/man1/weborf.1
+### Limited install/uninstall (binary and man page)
+## Install/Uninstall:
+[[ ! $1 = '-u' ]] && { # Copy these files for limited install:
+	sudo cp -v weborf /usr/local/bin/
+	sudo mkdir -vp /usr/local/share/man/man1
+	sudo cp -v weborf.1 /usr/local/share/man/man1/
+} || { # Remove these file for limited uninstall:
+	sudo rm -v -- /usr/local/bin/weborf
+	sudo rm -v -- /usr/local/share/man/man1/weborf.1
+}

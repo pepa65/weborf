@@ -1,4 +1,4 @@
-AC_INIT([Weborf], [0.13.5b], [solusos@passchier.net], [weborf], [http://github.com/pepa65/weborf])
+AC_INIT([Weborf], [0.13.5c], [solusos@passchier.net], [weborf], [http://github.com/pepa65/weborf])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([queue.c])
 AC_CONFIG_HEADERS([config.h])
