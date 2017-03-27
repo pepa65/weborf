@@ -4,9 +4,9 @@
 Usage(){ cat <<-EOS
 	 USAGE: . INSTALL [-i|-u|-h]
 	  (no option):  make and optionally install
-	           -i:  install
-	           -u:  uninstall
-	           -h:  this help text
+	           -i:  only install
+	           -u:  only uninstall
+	           -h:  only this help text
 	EOS
 }
 
@@ -27,38 +27,43 @@ Change_version(){ cat <<-EOS
 
 [[ -z $1 || $1 = '-i' || $1 = '-u' ]] || { Usage; return;}
 
+[[ $BASH_SOURCE = */* ]] && dir=${BASH_SOURCE%/*}
+
 ## Build:
-[[ -z $1 ]] && {
-	test -f Makefile || {  # If Makefile is not yet generated, do:
+if [[ -z $1 ]]
+then
+	(cd "$dir"
+		test -f Makefile || {  # If Makefile is not yet generated, do:
+			autoreconf -fi
+			./configure
+		}
+		make maintainer-clean
+	)
+	Change_version
+	(cd "$dir"
 		autoreconf -fi
 		./configure
-	}
+		make
 
-	make maintainer-clean
-	Change_version
-	autoreconf -fi
-	./configure
-	make
-
-	## Recommended:
-	make check
-
+		## Recommended:
+		make check
+	)
 	echo
 	read -p " Press Ctrl-C to NOT install, or Enter to continue installing "
-}
+fi
 
 ### Full install/uninstall (qweborf, weborf.conf, init.d)
 # sudo make install
 # sudo make uninstall
 
-
 ### Limited install/uninstall (binary and man page)
 ## Install/Uninstall:
-[[ ! $1 = '-u' ]] && { # Copy these files for limited install:
-	sudo cp -v weborf /usr/local/bin/
+if [[ ! $1 = '-u' ]]
+then # Copy these files for limited install:
+	sudo cp -v "$dir/weborf" /usr/local/bin/
 	sudo mkdir -vp /usr/local/share/man/man1
-	sudo cp -v weborf.1 /usr/local/share/man/man1/
-} || { # Remove these file for limited uninstall:
+	sudo cp -v "$dir/weborf.1" /usr/local/share/man/man1/
+else # Remove these file for limited uninstall:
 	sudo rm -v -- /usr/local/bin/weborf
 	sudo rm -v -- /usr/local/share/man/man1/weborf.1
-}
+fi
