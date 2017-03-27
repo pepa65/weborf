@@ -1,56 +1,53 @@
-#### Installation 0.13.5c
+#### Installation 0.13.5d
 ## Install script 
 
 Usage(){ cat <<-EOS
-	 USAGE: . INSTALL [-i|-u|-h]
+	 USAGE: . INSTALL [-i|-u|-r|-h]
 	  (no option):  make and optionally install
+	           -r:  make, change release version and optionally install
 	           -i:  only install
 	           -u:  only uninstall
 	           -h:  only this help text
 	EOS
 }
 
-Change_version(){ cat <<-EOS
-	 Edit these files when changing the version:
-	   configure.ac
-	   README.md
-	   CHANGELOG
-	   INSTALL
-	   weborf.1
-	   weborf.conf.5
-	   qweborf.setup.py
+Change_version(){ # increase letter of version string and change files
+	header=$(head -1 INSTALL)
+	version=${header//* /}
+	new=$(tr 'a-y' 'b-z' <<<"$version")
+	sed -i "s|$version|$new|" \
+	   configure.ac \
+	   README.md \
+	   CHANGELOG \
+	   INSTALL \
+	   weborf.1 \
+	   weborf.conf.5 \
+	   qweborf.setup.py \
 	   qweborf/qweborf.py
-
-	EOS
-	read -p " Press Ctrl-C to edit these files first, or Enter to continue build "
 }
 
-[[ -z $1 || $1 = '-i' || $1 = '-u' ]] || { Usage; return;}
+[[ -z $1 || $1 = '-r' || $1 = '-i' || $1 = '-u' ]] || { Usage; return;}
 
-[[ $BASH_SOURCE = */* ]] && dir=${BASH_SOURCE%/*}
+[[ $BASH_SOURCE = */* ]] && dir=${BASH_SOURCE%/*} || dir='.'
 
 ## Build:
-if [[ -z $1 ]]
-then
-	(cd "$dir"
-		test -f Makefile || {  # If Makefile is not yet generated, do:
-			autoreconf -fi
-			./configure
-		}
-		make maintainer-clean
-	)
-	Change_version
-	(cd "$dir"
+[[ -z $1 || $1 = '-r' ]] && (
+	cd "$dir"
+	test -f Makefile || {  # If Makefile is not yet generated, do:
 		autoreconf -fi
 		./configure
-		make
+	}
+	make maintainer-clean
+	[[ $1 = '-r' ]] && Change_version
+	autoreconf -fi
+	./configure
+	make
 
-		## Recommended:
-		make check
-	)
+	## Recommended:
+	make check
 	echo
 	read -p " Press Ctrl-C to NOT install, or Enter to continue installing "
-fi
+)
 
 ### Full install/uninstall (qweborf, weborf.conf, init.d)
 # sudo make install
