@@ -64,7 +64,6 @@ typedef struct {
     int strfile_fd; // File descriptor for strfile
     char *basedir; // Basedir for the host
     unsigned int status_code; // HTTP status code
-
 } connection_t;
 
 typedef struct {
@@ -104,7 +103,6 @@ typedef struct {
     char *css; // The CSS style definitions for the webpage
     char *indexes[MAXINDEXCOUNT]; // List of pointers to index files
     int indexes_l; // Count of the list
-
 } weborf_configuration_t;
 
 #endif

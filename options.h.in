@@ -60,15 +60,21 @@
 #define HTMLHEAD "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//\
 EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; \
 charset=UTF-8\" /><meta http-equiv=\"pragma\" content=\"no-cache\" /><title>"
+
 #define CSS "body{font-family:Arial,sans-serif; background-color:#eee;} \
-.foot{font-size:80%; color:#666; margin: 4px 0 600px;} \
 a,a:active{text-decoration:none; color:#116;} \
 a:visited{color:#416;} \
 a:hover,a:focus{text-decoration:none;} \
+.foot{font-size:80%; color:#666; margin: 4px 0 600px;} \
 h1{color:#f00;} \
 h2{margin-bottom:12px;} \
 h4{color:#333;} \
 .s,.s{text-align:right;} \
+.head{width:100%; font-size:160%; font-weight:bold;} \
+.head td{padding:0;} \
+.head td:first-child{width:1%; padding:0;} \
+.head a{color:#333;} \
+.head td:first-child a{color:#666;} \
 th,td{font-size:80%; text-align:left; overflow:hidden;} \
 th{padding-right:14px; padding-bottom:3px;} \
 td{padding-right:14px; padding-left:5px;} \
@@ -80,9 +86,8 @@ td a:hover{background-color:#ffd;} \
 .darker{background-color:#bbb;} \
 .dark{background-color:#ddd;} \
 .light{background-color:#fff;} \
-.date{font:60% monospace;} \
-.size{font:80% monospace;} \
-.root{color:#666;}"
+.date{font:70% monospace;} \
+.size{font:80% monospace;}"
 
 #define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><p class=\"foot\">" PACKAGE_STRING "</p></a></body></html>"
 

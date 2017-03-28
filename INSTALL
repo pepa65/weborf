@@ -1,4 +1,4 @@
-#### Installation 0.13.5d
+#### Installation 0.13.5e
 ## Install script 
 
 Usage(){ cat <<-EOS
@@ -18,12 +18,12 @@ Change_version(){ # increase letter of version string and change files
 	sed -i "s|$version|$new|" \
 	   configure.ac \
 	   README.md \
-	   CHANGELOG \
 	   INSTALL \
 	   weborf.1 \
 	   weborf.conf.5 \
 	   qweborf.setup.py \
 	   qweborf/qweborf.py
+	echo "$new"
 }
 
 [[ -z $1 || $1 = '-r' || $1 = '-i' || $1 = '-u' ]] || { Usage; return;}
@@ -38,7 +38,8 @@ Change_version(){ # increase letter of version string and change files
 		./configure
 	}
 	make maintainer-clean
-	[[ $1 = '-r' ]] && Change_version
+	[[ $1 = '-r' ]] && \
+			echo " Has CHANGELOG been edited for version $(Change_version)??"
 	autoreconf -fi
 	./configure
 	make

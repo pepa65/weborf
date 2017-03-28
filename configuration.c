@@ -17,6 +17,7 @@
 #include "cachedir.h"
 #include "auth.h"
 
+char *realpath(const char*, char*);
 char *get_current_dir_name(void);
 
 weborf_configuration_t weborf_conf={
@@ -58,7 +59,6 @@ static void configuration_enable_sending_mime() {
 #endif
 }
 
-
 // Sets the base dir, making sure that it is really a directory.
 static void configuration_set_basedir(char * bd) {
     struct stat stat_buf;
@@ -69,7 +69,8 @@ static void configuration_set_basedir(char * bd) {
         printf("%s must be a directory\n",bd);
         exit(1);
     }
-    weborf_conf.basedir=bd;
+    weborf_conf.basedir=realpath(bd, NULL);
+//    weborf_conf.basedir=bd;
 }
 
 // Sets default CGI configuration, run .php and .py as CGI

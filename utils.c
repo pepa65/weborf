@@ -25,13 +25,12 @@
 extern weborf_configuration_t weborf_conf;
 
 // This function encodes characters in 'name' to %hh form into 'encoded'
-static void href_encode(char *name, char *encoded, int len_alloc) {
-    // 'encoded' needs pre-allocation and length passed into 'len_alloc'
+static void href_encode(const char *name, char *encoded, const int alloc) {
+    // 'encoded' needs pre-allocation of length passed into 'alloc'
     encoded[0]=0;
     if (name==NULL) return;
 
-//    char *code=" \"#&\\<?:%>";
-    char *code=" !\'()[]|*+,;=@\"#&\\<\?:%>";
+    char *code=" \"#&\\<\?:%>";
     size_t len_name=strlen(name);
     size_t len_code=strlen(code);
     size_t len_encoded=0;
@@ -48,49 +47,35 @@ static void href_encode(char *name, char *encoded, int len_alloc) {
                 inc=3;
                 break;
             }
-        if (len_encoded + inc >= len_alloc) return;
+        if (len_encoded + inc >= alloc) break;
         len_encoded+=sprintf(encoded + len_encoded, format, name[i]);
     }
 }
 
-// This function encodes the characters in 'name' to &code; form into 'encoded'
-static void html_encode(char *name, char *encoded, int len_alloc) {
-    // 'encoded' needs pre-allocation and length passed into 'len_alloc'!
-    encoded[0]=0;
-    if (name==NULL) return;
-
+// This function encodes the characters in 'name' to &code; into 'encoded'
+static void html_encode(const char *name, char *encoded, const size_t alloc) {
+    // 'encoded' needs pre-allocation of length into 'alloc'!
     size_t len=0;
     size_t inc;
     char *code;
-    char ni[2]="X";
     size_t i;
+    char ch[2]=" ";
 
     for (i=0; i < strlen(name); i++) {
-        ni[0]=name[i];
-        code=ni;
-        inc=1;
-        switch (name[i]) {
-        case '&':
-            code="&amp;";
-            inc=5;
-            break;
-        case '<':
-            code="&lt;";
-            inc=4;
-            break;
-        case '>':
-            code="&gt;";
-            inc=4;
-            break;
-        case ' ':
-            code="&nbsp;";
-            inc=6;
-            break;
+        ch[0]=name[i];
+        code=ch;
+        switch(ch[0]) {
+            case '&': code="&amp;"; break;
+            case '<': code="&lt;"; break;
+            case '>': code="&gt;"; break;
+            case ' ': code="&nbsp;"; break;
         }
-        if (len + inc >= len_alloc) return;
-        strcpy(encoded + len, code);
+        inc=strlen(code);
+        if (len+inc >= alloc) break;
+        strncpy(encoded + len, code, inc);
         len+=inc;
     }
+    encoded[len]=0;
 }
 
 // This function reads the directory dir, putting inside the html string an
@@ -101,49 +86,54 @@ static void html_encode(char *name, char *encoded, int len_alloc) {
 // Returns the size of the html; -1: unable to open; -2: out of memory
 int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bool parent) {
     int pagesize=0; // Written bytes on the page
-    int maxsize=bufsize - 1; // String's max size
+    int maxsize=bufsize-1; // String's max size
     int printf_s;
-    char *color; // Depending on row count chooses a background color
-    char *measure; // contains measure unit for file's size (B, KiB, MiB)
+    bool color=0; // flip row background colour
+    char *measure; // contains measure unit for file's size (B, KiB, MiB, GiB)
     char path[INBUFFER]; // Buffer to contain element's absolute path
     struct dirent **namelist=NULL; // UNIX filenames
+    int i;
     int errcode=0;
-    int counter=scandir(connection_prop->strfile, &namelist, 0, alphasort);
-    if (counter<0) { //Open not succesfull
+    int nfiles=scandir(connection_prop->strfile, &namelist, 0, alphasort);
+    if (nfiles<0) { //Open not succesful
         errcode=-1;
         goto escape;
     }
-
+    char *basedir=weborf_conf.full_basedir ? connection_prop->strfile : connection_prop->page;
+    char name_href[ESCAPED_FNAME_LEN];
+    char name_html[ESCAPED_FNAME_LEN];
+    href_encode(basedir, name_href, ESCAPED_FNAME_LEN);
+    html_encode(basedir, name_html, ESCAPED_FNAME_LEN);
+    char *basename=malloc(ESCAPED_FNAME_LEN);
+    i=strlen(name_html)-1;
+    int j=ESCAPED_FNAME_LEN;
+    basename[--j]=0;
+    while (i > 0 && name_html[--i] != '/') basename[--j]=name_html[i];
+    name_html[++i]=0;
+    basename=basename+j;
     // Specific header table
-		char *header=malloc(strlen(connection_prop->page) + 32);
-    strcpy(header, "<span class=\"root\">root </span>");
-    strcpy(header+31, connection_prop->page);
-    if (weborf_conf.full_basedir) strcpy(header, connection_prop->strfile);
-    pagesize=printf_s=snprintf(html+pagesize,maxsize,"%s%s</title>%s\n<style type=\"text/css\">%s</style></head>\n<body><h4>%s</h4><div class=\"list\"><table><tr class=\"i\"><td>type</td><td>name</td><td>size</td><td>last modified</td></tr>",HTMLHEAD,weborf_conf.name,weborf_conf.favlink,weborf_conf.css,header);
+    pagesize=printf_s=snprintf(html+pagesize, maxsize,
+            "%s%s</title>%s<style type=\"text/css\">\n%s\n</style></head>"
+            "<body><table class=\"head\"><tr><td><a href=\"/\" title=\"back to root\">root</a></td>"
+            "<td><a href=\"..\" title=\"One back to here\">%s</a></td>"
+            "</tr></table><div class=\"list\"><table>"
+            "<tr class=\"i\"><td>type</td><td>name</td><td>size</td><td>last modified</td></tr>",
+            HTMLHEAD, weborf_conf.name, weborf_conf.favlink, weborf_conf.css,
+            weborf_conf.full_basedir || parent ? name_html : "");
     maxsize-=printf_s;
-    free(header);
 
-    // Cycles trough dir's elements
-    int i;
+    char *name;
+    printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td><b><a href=\"%s?\">dir</a></b></td><td><b>%s</b></td><td class=\"size\">%d</td><td></td></tr>",
+            name_href, basename, nfiles-2);
+    maxsize-=printf_s;
+    pagesize+=printf_s;
+
+    // Cycle through dir's elements
     struct tm ts;
     struct stat f_prop; // File's property
     char last_modified[URI_LEN];
-
-    char *name_html=malloc(ESCAPED_FNAME_LEN);
-    char *name_href=malloc(ESCAPED_FNAME_LEN);
-    char *page=connection_prop->page;
-    href_encode(page, name_href, ESCAPED_FNAME_LEN);
-    page++; // Strip leading /
-    page[strlen(page)-1]=0; // Cut trailing /
-    char *back="<b><a href=\"..\"> &nbsp; 🡴 &nbsp; </a></b>";
-    if (!parent) back="";
-    printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td><b><a href=\"%s?\">dir</a></b></td><td>%s</td><td class=\"size\">%d</td><td></td></tr>",name_href,back,counter-2);
-    maxsize-=printf_s;
-    pagesize+=printf_s;
-    color="light";
-
-    for (i=0; i<counter; i++) {
-        char *name=namelist[i]->d_name;
+    for (i=0; i<nfiles; i++) {
+        name=namelist[i]->d_name;
         if (name[0]=='.' || errcode)
             // Skip hidden files? Skip . and .. for sure
             if (weborf_conf.hide || name[1]==0 || (name[1]=='.' && name[2]==0)) {
@@ -159,10 +149,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
         // Get last modified
         localtime_r(&f_prop.st_mtime,&ts);
-        strftime(last_modified,URI_LEN, "%a, %d %b %Y %H:%M:%S", &ts);
-
-        char ext[7];
-        strcpy(ext, (weborf_conf.zip ? "zip" : "tar.gz"));
+        strftime(last_modified,URI_LEN, "%Y-%m-%d %H:%M:%S %A", &ts);
 
         html_encode(name, name_html, ESCAPED_FNAME_LEN);
         href_encode(name, name_href, ESCAPED_FNAME_LEN);
@@ -183,27 +170,29 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
 
             printf_s=snprintf(html+pagesize,maxsize,
                     "<tr class=\"%s\"><td><a href=\"%s?\" title=\"%s.%s\">file</a></td><td><a href=\"%s\">%s</a></td><td class=\"size\">%lld%s</td><td class=\"date\">%s</td></tr>\n",
-                    color, name_href, name_html, ext, name_href, name_html, (long long int)size, measure, last_modified);
+                    color ? "dark" : "light", name_href, name_html,
+                    weborf_conf.zip ? "zip" : "tar.gz", name_href, name_html,
+                    (long long int)size, measure, last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
-            color=(color=="dark" ? "light" : "dark");
+            color^=color;
 
         } else if (S_ISDIR(f_mode)) { // Directory entry
             // Table row for the dir
             printf_s=snprintf(html+pagesize,maxsize,
-                    "<tr class=\"%s\"><td class=\"b\"><a href=\"%s?\" title=\"%s.%s\">dir</a></td><td class=\"b\"><a href=\"%s/\">%s</a></td><td></td><td class=\"date\">%s</td></tr>\n",
-                    color, name_href, name_html, ext, name_href, name_html, last_modified);
+                    "<tr class=\"%s b\"><td><a href=\"%s?\" title=\"%s.%s\">dir</a></td><td><a href=\"%s/\">%s</a></td><td></td><td class=\"date\">%s</td></tr>\n",
+                    color ? "dark" : "light", name_href, name_html,
+                    weborf_conf.zip ? "zip" : "tar.gz", name_href, name_html,
+                    last_modified);
             maxsize-=printf_s;
             pagesize+=printf_s;
-            color=(color=="dark" ? "light" : "dark");
+            color^=color;
         }
 
         free(namelist[i]);
         if (maxsize <= 0) errcode=-2; // Out of memory
     }
 escape:
-    free(name_href);
-    free(name_html);
     free(namelist);
     if (errcode==0) {
         printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
