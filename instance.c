@@ -1066,18 +1066,13 @@ int send_http_header(int code, unsigned long long int size,char* headers,bool co
         left_head-=len_head;
     }
 #ifdef SEND_LAST_MODIFIED_HEADER
-    else { // timestamp with now, to be eventually used by Last-Modified
+    else // timestamp with now, to be eventually used by Last-Modified
         timestamp=time(NULL);
-    }
-
-    {
         // Sends Date
-        struct tm  ts;
-        localtime_r((time_t)&timestamp,&ts);
-        len_head=strftime(head,left_head, "Last-Modified: %a, %d %b %Y %H:%M:%S\r\n", &ts);
-        head+=len_head;
-        left_head-=len_head;
-    }
+    len_head=strftime(head,left_head, "Last-Modified: %a, %d %b %Y %H:%M:%S\r\n",
+            localtime((time_t)&timestamp));
+    head+=len_head;
+    left_head-=len_head;
 #endif
 
     if (size>0 || (connection_prop->keep_alive==true)) {

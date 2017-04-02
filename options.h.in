@@ -45,9 +45,10 @@
 #define RBUFFER 128             // Buffer to contain a range
 #define BUFFERED_READER_SIZE 2048
 #define DATEBUFFER 50           // Buffer for text date
-#define URI_LEN 256
+#define URI_LEN 256             // Max fname 256 (on linux)
 #define PATH_LEN 1024
-#define ESCAPED_FNAME_LEN 768  // Size of escaped filename (fname max 256 on linux)
+#define HREF_NLEN URI_LEN*3+1   // Size of escaped filename
+#define HTML_NLEN URI_LEN*6+1   // Size of escaped filename (fname max 256 on linux)
 #define MIMETYPELEN 15          // Size of mimetype string
 
 // Number of index pages allowed to search
