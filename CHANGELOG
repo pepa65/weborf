@@ -1,3 +1,7 @@
+0.13.5f 2017-04-03 pepa65 <solusos@passchier.net>
+- Use localtime instead of localtime_r
+- Improve rendering of date and filesize
+
 0.13.5e 2017-03-29 pepa65 <solusos@passchier.net>
 - Debug installer
 - Improved presentation and navigation
