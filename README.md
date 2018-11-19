@@ -1,5 +1,7 @@
 # User friendly webserver
 
+//gitlab.com/pepa65/weborf
+
 ## qweborf
 Provides a GUI to share local files.
 
@@ -33,7 +35,7 @@ pyuic5 qweborf/main.ui >qweborf/main.py
 
 ### Run
 ```
-./weborf  # or when installed: weborf
+./weborf  # or when installed (in PATH): weborf
 ```
 
 *qweborf: will look for weborf in the PATH*
