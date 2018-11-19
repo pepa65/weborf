@@ -120,7 +120,6 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
             "<tr class=\"i\"><td>type</td><td>name</td><td>size</td><td>last modified</td></tr>",
             HTMLHEAD, weborf_conf.name, weborf_conf.favlink, weborf_conf.css,
             weborf_conf.full_basedir || parent ? name_html : "");
-printf("1- %d %d %d\n", pagesize, printf_s, maxsize);
     pagesize+=printf_s;
     maxsize-=printf_s;
     if (maxsize < 0) return -2; // Out of memory
@@ -128,7 +127,6 @@ printf("1- %d %d %d\n", pagesize, printf_s, maxsize);
     char *name;
     printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td><b><a href=\"%s?\">dir</a></b></td><td><b>%s</b></td><td class=\"size\">%d</td><td></td></tr>",
             name_href, basename, nfiles-2);
-printf("2- %d %d %d\n", pagesize, printf_s, maxsize);
     pagesize+=printf_s;
     maxsize-=printf_s;
     if (maxsize < 0) return -2; // Out of memory
@@ -182,7 +180,6 @@ printf("2- %d %d %d\n", pagesize, printf_s, maxsize);
             continue;
         }
         color^=color;
-printf("3- %d %d %d\n", pagesize, printf_s, maxsize);
         pagesize+=printf_s;
         maxsize-=printf_s;
         if (maxsize < 0) return -2; // Out of memory
@@ -191,7 +188,6 @@ printf("3- %d %d %d\n", pagesize, printf_s, maxsize);
     free(namelist);
     free(sizeu);
     printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
-printf("4- %d %d %d\n", pagesize, printf_s, maxsize);
     pagesize+=printf_s;
     maxsize-=printf_s;
     if (maxsize < 0) return -2; // Out of memory
