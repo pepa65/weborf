@@ -200,22 +200,12 @@ printf("4- %d %d %d\n", pagesize, printf_s, maxsize);
 
 // Prints version information
 void version() {
-    printf("Weborf " VERSION "\n"
-           "© Copyright 2007-2017 Salvo 'LtWorf' Tomaselli\n"
-           "© Copyright 2016-2017 pepa65 <solusos@passchier.net\n"
-           "This is free software.  You may redistribute copies of it under the terms of\n"
-           "the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n"
-           "There is NO WARRANTY, to the extent permitted by law.\n\n"
-
-           "Written by Salvo 'LtWorf' Tomaselli and Salvo Rinaldi.\n"
-           "Synchronized queue by Prof. Giuseppe Pappalardo\n"
-           "Modifications by pepa65 <" PACKAGE_BUGREPORT ">\n" PACKAGE_URL "\n");
+    printf("Weborf " VERSION "\n" COPYRIGHT);
     exit(0);
 }
 
 void print_capabilities() {
     printf("version:" VERSION "\n");
-
     printf("ipv6:"
 #ifdef IPV6
     "1"
@@ -223,7 +213,6 @@ void print_capabilities() {
     "0"
 #endif
     "\n");
-
     printf("webdav:"
 #ifdef WEBDAV
     "1"
@@ -231,7 +220,6 @@ void print_capabilities() {
     "0"
 #endif
     "\n");
-
     printf("mime:"
 #ifdef SEND_MIMETYPES
     "1"
@@ -239,7 +227,6 @@ void print_capabilities() {
     "0"
 #endif
     "\n");
-
     exit(0);
 }
 

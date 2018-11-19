@@ -93,6 +93,17 @@ td a:hover{background-color:#ffd;} \
 
 #define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><p class=\"foot\">" PACKAGE_STRING "</p></a></body></html>"
 
+#define COPYRIGHT "© Copyright 2007-2017 Salvo 'LtWorf' Tomaselli\n\
+© Copyright 2016-2018 pepa65 <solusos@passchier.net\n\
+This is free software.  You may redistribute copies of it under the terms of\n\
+the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n\
+There is NO WARRANTY, to the extent permitted by law.\n\
+\n\
+Written by Salvo 'LtWorf' Tomaselli and Salvo Rinaldi.\n\
+Synchronized queue by Prof. Giuseppe Pappalardo\n\
+Modifications by pepa65 <" PACKAGE_BUGREPORT ">\n\
+Repo at " PACKAGE_URL "\n"
+
 // SCRIPTS
 #define SCRPT_TIMEOUT 30        // Timeout for the scripts, in seconds
 #define HIDE_CGI_ERRORS         // Hides all the errors
