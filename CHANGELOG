@@ -1,3 +1,10 @@
+0.13.5g 2018-11-18 pepa65 <solusos@passchier.net>
+- Fix list_dir cache display bug
+- Reorder releases, cut dead tree
+- Use readdir instead of readdir_r
+- Little fixes after ltworf
+- Check changelog updated when starting new version
+
 0.13.5f 2017-04-03 pepa65 <solusos@passchier.net>
 - Use localtime instead of localtime_r
 - Improve rendering of date and filesize

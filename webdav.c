@@ -326,29 +326,26 @@ int propfind(connection_t* connection_prop,string_t *post_param) {
     if (props.dav_details.deep) { // Send children files
         DIR *dp=opendir(connection_prop->strfile); // Open dir
         char file[URI_LEN];
-        struct dirent entry;
-        struct dirent *result;
-        int return_code;
-
-        if (dp==NULL) { // Error, unable to send because header was already sent
+        struct dirent *entry;
+        if (dp==NULL) { // Error, unable to send because header already sent
             close(sock);
             return 0;
         }
 
-        for (return_code=readdir_r(dp,&entry,&result); result!=NULL && return_code==0; return_code=readdir_r(dp,&entry,&result)) { //Cycles trough dir's elements
+        // Cycles through dir's elements
+        while ((entry=readdir(dp)) != NULL) {
 #ifdef HIDE_HIDDEN_FILES
-            if (entry.d_name[0]=='.') // doesn't list hidden files
-                continue;
+            if (entry->d_name[0]=='.') continue; // doesn't list hidden files
 #else
             // Avoids dir . and .. but not all hidden files
-            if (entry.d_name[0]=='.' && (entry.d_name[1]==0 || (entry.d_name[1]=='.' && entry.d_name[2]==0)))
+            if (entry->d_name[0]=='.' && (entry->d_name[1]==0 || (entry->d_name[1]=='.' && entry->d_name[2]==0)))
                 continue;
 #endif
 
-            snprintf(file,URI_LEN,"%s%s", connection_prop->strfile, entry.d_name);
+            snprintf(file, URI_LEN, "%s%s", connection_prop->strfile, entry->d_name);
 
             // Sends details about a file
-            printprops(connection_prop,props,file,entry.d_name,false);
+            printprops(connection_prop,props, file, entry->d_name, false);
         }
 
         closedir(dp);

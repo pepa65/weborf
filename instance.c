@@ -659,34 +659,30 @@ int write_dir(char* real_basedir,connection_t* connection_prop) {
         return ERR_NOMEM;
     }
 
-    if ((pagelen=list_dir(connection_prop,html,MAXSCRIPTOUT,parent))<0) {
-        // Creates the page
-        free(html); // Frees the memory used for the page
-        switch (pagelen) {
-        case -1: return ERR_FILENOTFOUND;
-        case -2:
+    // Creates the page
+    pagelen=list_dir(connection_prop,html,MAXSCRIPTOUT,parent);
+    if (pagelen<0) free(html); // Frees html if returning
+    if (pagelen==-1) return ERR_FILENOTFOUND;
+    if (pagelen==-2) {
 #ifdef SERVERDBG
-            syslog(LOG_ERR, "Directory too large to be listed");
+        syslog(LOG_ERR, "Directory too large to be listed");
 #endif
-            return ERR_INSUFFICIENT_STORAGE;
-        }
-    } else { // If there are no errors sends the page
-        // WARNING: using the directory's mtime here allows better caching and
-        // the mtime will anyway be changed when files are added or deleted.
-        // Anyway i couldn't find the proof that it is changed also when files
-        // are modified.
-        // I tried on reiserfs and the directory's mtime changes too but I
-        // didn't find any doc about the other filesystems and OS.
-        send_http_header(200, pagelen, "Content-Type: text/html\r\n", true,
-            connection_prop->strfile_stat.st_mtime, connection_prop);
-        ssize_t retval = write(sock,html,pagelen);
-
-        // Write item in cache
-        cache_store_item(0,connection_prop,html,pagelen);
+        return ERR_INSUFFICIENT_STORAGE;
     }
+    // If there are no errors sends the page
+    // WARNING: using the directory's mtime here allows better caching and
+    // the mtime will anyway be changed when files are added or deleted.
+    // Anyway i couldn't find the proof that it is changed also when files
+    // are modified.
+    // I tried on reiserfs and the directory's mtime changes too but I
+    // didn't find any doc about the other filesystems and OS.
+    send_http_header(200, pagelen, "Content-Type: text/html\r\n", true,
+            connection_prop->strfile_stat.st_mtime, connection_prop);
+    ssize_t retval = write(sock,html,pagelen);
 
+    // Write item in cache
+    cache_store_item(0,connection_prop,html,pagelen);
     free(html); // Frees the memory used for the page
-
     return 0;
 }
 

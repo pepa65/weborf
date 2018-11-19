@@ -1,4 +1,4 @@
-#### Installation 0.13.5f
+#### Installation 0.13.5g
 ## Install script 
 
 Usage(){ cat <<-EOS
@@ -38,8 +38,10 @@ Change_version(){ # increase letter of version string and change files
 		./configure
 	}
 	make maintainer-clean
-	[[ $1 = '-r' ]] && \
-			echo " Has CHANGELOG been edited for version $(Change_version)??"
+	[[ $1 = '-r' ]] && new_version=$(Change_version) &&
+		! grep "$new_version" CHANGELOG &&
+		echo -e "\n Edit CHANGELOG to include $new_version before pushin
+g!\n"
 	autoreconf -fi
 	./configure
 	make

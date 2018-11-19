@@ -195,33 +195,25 @@ int cache_clear() {
 
     // Empty directory
     DIR *dp=opendir(cachedir); // Open dir
-    struct dirent entry;
-    struct dirent *result;
-    int return_code;
+    struct dirent *entry;
     int retval=0;
 
-    if (dp==NULL) {
-        return 1;
-    }
+    if (dp==NULL) return 1;
 
     char*file=malloc(PATH_LEN);// Buffer for path
-    if (file==NULL)
-        return -1;
+    if (file==NULL) return -1;
 
     // Cycles trough dir's elements
-    for (return_code=readdir_r(dp,&entry,&result); result!=NULL && return_code==0; return_code=readdir_r(dp,&entry,&result)) { //Cycles trough dir's elements
-
+    while ((entry=readdir(dp)) != NULL) {
         // skips dir . and .. but not all hidden files
-        if (entry.d_name[0]=='.' && (entry.d_name[1]==0 || (entry.d_name[1]=='.' && entry.d_name[2]==0)))
+        if (entry->d_name[0]=='.' && (entry->d_name[1]==0 || (entry->d_name[1]=='.' && entry->d_name[2]==0)))
             continue;
-
-        snprintf(file,PATH_LEN,"%s/%s",cachedir, entry.d_name);
+        snprintf(file,PATH_LEN,"%s/%s",cachedir, entry->d_name);
         if (unlink(file)!=0) retval=-1;
     }
 
     closedir(dp);
     free(file);
     return retval;
-
 }
 

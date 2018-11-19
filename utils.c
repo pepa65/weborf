@@ -90,24 +90,19 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     int printf_s;
     bool color=0; // flip row background colour
     // size and unit for file's size (B, KiB, MiB, GiB) and remainder for GiB
-    char *sizeu=malloc(12); // max: 9999.99 GiB
     unsigned long long int size;
-    double fsize;
     char path[INBUFFER]; // Buffer to contain element's absolute path
     struct dirent **namelist=NULL; // UNIX filenames
     int i;
-    int errcode=0;
     int nfiles=scandir(connection_prop->strfile, &namelist, 0, alphasort);
-    if (nfiles<0) { //Open not succesful
-        errcode=-1;
-        goto escape;
-    }
+    if (nfiles<0) return -1; // Open not succesful
+    char *sizeu=malloc(SIZEU); // max: len("9999.99 GiB")
+    char *basename=malloc(HTML_NLEN);
     char *basedir=weborf_conf.full_basedir ? connection_prop->strfile : connection_prop->page;
     char name_href[HREF_NLEN];
     char name_html[HTML_NLEN];
     href_encode(basedir, name_href, HREF_NLEN);
     html_encode(basedir, name_html, HTML_NLEN);
-    char *basename=malloc(HTML_NLEN);
 
     i=strlen(name_html)-1;
     int j=HTML_NLEN;
@@ -117,7 +112,7 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
     basename=basename+j;
 
     // Specific header table
-    pagesize=printf_s=snprintf(html+pagesize, maxsize,
+    printf_s=snprintf(html+pagesize, maxsize,
             "%s%s</title>%s<style type=\"text/css\">\n%s\n</style></head>"
             "<body><table class=\"head\"><tr><td><a href=\"/\" title=\"back to root\">root</a></td>"
             "<td><a href=\"..\" title=\"One back to here\">%s</a></td>"
@@ -125,20 +120,25 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
             "<tr class=\"i\"><td>type</td><td>name</td><td>size</td><td>last modified</td></tr>",
             HTMLHEAD, weborf_conf.name, weborf_conf.favlink, weborf_conf.css,
             weborf_conf.full_basedir || parent ? name_html : "");
+printf("1- %d %d %d\n", pagesize, printf_s, maxsize);
+    pagesize+=printf_s;
     maxsize-=printf_s;
+    if (maxsize < 0) return -2; // Out of memory
 
     char *name;
     printf_s=snprintf(html+pagesize,maxsize,"<tr class=\"darker\"><td><b><a href=\"%s?\">dir</a></b></td><td><b>%s</b></td><td class=\"size\">%d</td><td></td></tr>",
             name_href, basename, nfiles-2);
-    maxsize-=printf_s;
+printf("2- %d %d %d\n", pagesize, printf_s, maxsize);
     pagesize+=printf_s;
+    maxsize-=printf_s;
+    if (maxsize < 0) return -2; // Out of memory
 
     // Cycle through dir's elements
     struct stat f_prop; // File's property
     char last_modified[URI_LEN];
     for (i=0; i<nfiles; i++) {
         name=namelist[i]->d_name;
-        if (name[0]=='.' || errcode)
+        if (name[0]=='.')
             // Skip hidden files? Skip . and .. for sure
             if (weborf_conf.hide || name[1]==0 || (name[1]=='.' && name[2]==0)) {
                 free(namelist[i]);
@@ -158,46 +158,44 @@ int list_dir(connection_t *connection_prop, char *html, unsigned int bufsize, bo
         if (S_ISREG(f_mode)) { // Regular file
             // Table row for the file, scaling the file's size
             size=f_prop.st_size;
-            if (size < 1024) sprintf(sizeu, "%d B", (int)size);
+            if (size < 1024) snprintf(sizeu, SIZEU, "%d B", (int)size);
             else if (size < 1048576)
-                sprintf(sizeu, "%.2f KiB", (double)size/1024);
+                snprintf(sizeu, SIZEU, "%.2f KiB", (double)size/1024);
             else if ((size=size/1024) < 1048576)
-                sprintf(sizeu, "%.2f MiB", (double)size/1024);
-            else sprintf(sizeu, "%.2f GiB", (double)size/1048576);
-            printf_s=snprintf(html+pagesize,maxsize,
+                snprintf(sizeu, SIZEU, "%.2f MiB", (double)size/1024);
+            else snprintf(sizeu, SIZEU, "%.2f GiB", (double)size/1048576);
+            printf_s=snprintf(html+pagesize, maxsize,
                     "<tr class=\"%s\"><td><a href=\"%s?\" title=\"%s.%s\">file</a></td><td><a href=\"%s\">%s</a></td><td class=\"size\">%s</td><td class=\"date\">%s</td></tr>\n",
                     color ? "dark" : "light", name_href, name_html,
                     weborf_conf.zip ? "zip" : "tar.gz", name_href, name_html,
                     sizeu, last_modified);
-            maxsize-=printf_s;
-            pagesize+=printf_s;
-            color^=color;
-        } else if (S_ISDIR(f_mode)) { // Directory entry
+        } else if (S_ISDIR(f_mode)) // Directory entry
             // Table row for the dir
-            printf_s=snprintf(html+pagesize,maxsize,
+            printf_s=snprintf(html+pagesize, maxsize,
                     "<tr class=\"%s b\"><td><a href=\"%s?\" title=\"%s.%s\">dir</a></td><td><a href=\"%s/\">%s</a></td><td></td><td class=\"date\">%s</td></tr>\n",
                     color ? "dark" : "light", name_href, name_html,
                     weborf_conf.zip ? "zip" : "tar.gz", name_href, name_html,
                     last_modified);
-        } else {
+        else {
             printf("No file/directory:%s\n", name);
             free(namelist[i]);
             continue;
         }
-        maxsize-=printf_s;
-        pagesize+=printf_s;
         color^=color;
-        free(namelist[i]);
-        if (maxsize <= 0) errcode=-2; // Out of memory
-    }
-escape:
-    free(sizeu);
-    free(namelist);
-    if (errcode==0) {
-        printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
+printf("3- %d %d %d\n", pagesize, printf_s, maxsize);
         pagesize+=printf_s;
-        return pagesize;
-    } else return errcode;
+        maxsize-=printf_s;
+        if (maxsize < 0) return -2; // Out of memory
+        free(namelist[i]);
+    }
+    free(namelist);
+    free(sizeu);
+    printf_s=snprintf(html+pagesize,maxsize,"</table>%s",HTMLFOOT);
+printf("4- %d %d %d\n", pagesize, printf_s, maxsize);
+    pagesize+=printf_s;
+    maxsize-=printf_s;
+    if (maxsize < 0) return -2; // Out of memory
+    return pagesize;
 }
 
 // Prints version information
