@@ -1,25 +1,25 @@
-0.13.5g 2018-11-18 pepa65 <solusos@passchier.net>
+0.13.5g 2018-11-18 pepa65 <pepa65@passchier.net>
 - Fix list_dir cache display bug
 - Reorder releases, cut dead tree
 - Use readdir instead of readdir_r
 - Little fixes after ltworf
 - Check changelog updated when starting new version
 
-0.13.5f 2017-04-03 pepa65 <solusos@passchier.net>
+0.13.5f 2017-04-03 pepa65 <pepa65@passchier.net>
 - Use localtime instead of localtime_r
 - Improve rendering of date and filesize
 
-0.13.5e 2017-03-29 pepa65 <solusos@passchier.net>
+0.13.5e 2017-03-29 pepa65 <pepa65@passchier.net>
 - Debug installer
 - Improved presentation and navigation
 
-0.13.5d 2017-03-28 pepa65 <solusos@passchier.net>
+0.13.5d 2017-03-28 pepa65 <pepa65@passchier.net>
 - Improved installer with versioning
 
-0.13.5c 2017-03-27 pepa65 <solusos@passchier.net>
+0.13.5c 2017-03-27 pepa65 <pepa65@passchier.net>
 - Made installing easier, better documented
 
-0.13.5b 2017-03-27 pepa65 <solusos@passchier.net>
+0.13.5b 2017-03-27 pepa65 <pepa65@passchier.net>
 - Fixed unescaped filename not found bug
 - Eliminated mystring.c/h
 - Added -H/--hide commandline option to not show hidden dotfiles
@@ -28,39 +28,39 @@
 - Remove -e/--ipv6 option (now needs recompile if kernel doesn't support IPV6)
 - General cleanup, compile errorfree
 
-0.13.5a 2017-02-10 pepa65 <solusos@passchier.net>
+0.13.5a 2017-02-10 pepa65 <pepa65@passchier.net>
 - Enabled no default index pages
 - Changed default to using relative paths
 - Added option to show full basedir path
 - Increased max. generated size to 20MB
 
-0.13.5 2017-02-09 pepa65 <solusos@passchier.net>
+0.13.5 2017-02-09 pepa65 <pepa65@passchier.net>
 - Updated man page
 - Re-sorted commandline options
 - Updated daemon script
 - Cross-checked options/names
 
-0.13.4c 2017-02-08 pepa65 <solusos@passchier.net>
+0.13.4c 2017-02-08 pepa65 <pepa65@passchier.net>
 - Added -g/--gid commandline switch on request
   https://github.com/ltworf/weborf/issues/6
 
-0.13.4b 2017-01-15 pepa65 <solusos@passchier.net>
+0.13.4b 2017-01-15 pepa65 <pepa65@passchier.net>
 - Fix handling of filenames with ?
 - Change option -x/--noexec into -X/--exec and make noexec default
 - Archiving symlinked files/directories
 - Small improvements
 
-0.13.4a 2016-12-21 pepa65 <solusos@passchier.net>
+0.13.4a 2016-12-21 pepa65 <pepa65@passchier.net>
 - Backport fixes from ltworf
   - Workaround API breaking in PyQt
   - Convert things to string before showing them in qweborf
 
-0.13.3b 2016-12-21 pepa65 <solusos@passchier.net>
+0.13.3b 2016-12-21 pepa65 <pepa65@passchier.net>
 - Sanitized comments
 - Allow for current directory to be the standard webroot
 - Output what is served where on startup
 
-0.13.3a 2016-08-13 pepa65 <solusos@passchier.net>
+0.13.3a 2016-08-13 pepa65 <pepa65@passchier.net>
 - New commandline options:
   -z|--zip Use zip instead of tar
   -U|--user User for authentication

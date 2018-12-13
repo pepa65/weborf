@@ -1,6 +1,6 @@
 // options.h.in
 // Weborf copyright 2007 (GPL3+) Salvo "LtWorf" Tomaselli <tiposchi@tiscali.it>
-// Some modification in this branch: pepa65 <solusos@passchier.net>
+// Some modification in this branch: pepa65 <pepa65@passchier.net>
 
 #include "config.h"
 #include <unistd.h> //Needed because it defines the _POSIX_IPV6
@@ -94,7 +94,7 @@ td a:hover{background-color:#ffd;} \
 #define HTMLFOOT "</div><a href=\"" PACKAGE_URL "\" title=\"" PACKAGE_NAME " github page\"><p class=\"foot\">" PACKAGE_STRING "</p></a></body></html>"
 
 #define COPYRIGHT "© Copyright 2007-2017 Salvo 'LtWorf' Tomaselli\n\
-© Copyright 2016-2018 pepa65 <solusos@passchier.net\n\
+© Copyright 2016-2018 pepa65 <pepa65@passchier.net\n\
 This is free software.  You may redistribute copies of it under the terms of\n\
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
